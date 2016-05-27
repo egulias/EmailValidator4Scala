@@ -19,9 +19,10 @@ class LocalPartSpec extends FunSpec {
           val result = EmailParser2.local(new TokenReader(t))
           !result.successful //&& result.toString == "f"
         }
-      val invalidEmails = ".dotAtStart@" :: Nil
+      //String.format("Lat%ss\rtart%s@", "\"", "\"") :
+      val invalidEmails = "unclosed(comment@" :: ".dotAtStart@" :: Nil
 
-      for (t <- invalidEmails) assert(f(t))
+      for (t <- invalidEmails) assert(f(t), s"with $t")
     }
   }
 }

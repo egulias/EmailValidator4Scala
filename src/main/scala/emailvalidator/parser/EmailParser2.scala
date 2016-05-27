@@ -1,6 +1,6 @@
 package emailvalidator.parser
 
-import emailvalidator.lexer.{DOT, AT, Token, TokenReader}
+import emailvalidator.lexer._
 
 import scala.util.parsing.combinator.Parsers
 
@@ -29,7 +29,9 @@ object EmailParser2 extends Parsers {
     }
   }
 
-  def local = not(DOT()) ~ hasAt
+  def local = opt(comment) | not(DOT()) ~ hasAt
+
+  def comment: Parser[Token] = OPENPARENTHESIS() ~> Generic(_) // <~ CLOSEPARENTHESIS()
 
   def hasAt: Parser[Token] = (tr:TokenReader) => {
     if (tr.realSource.contains(AT())) Success(tr.first, tr.rest)
@@ -40,22 +42,5 @@ object EmailParser2 extends Parsers {
     else Failure("no domain", tr.rest)
   }
 
-//  def domain: Parser[Token] =
-//    new Parser[Token] {
-//      override def apply(in: EmailParser2.Input): EmailParser2.ParseResult[Token] = body(in,
-//        tr => {
-//          if (tr.realSource.tail.nonEmpty)
-//            Success(tr.first, tr.rest)
-//          else Failure("no domain", tr.rest)
-//        }
-//      )
-//    }
-
   def all: Parser[Token] = local ~> domain
-}
-
-object ATest extends App {
-  val p = EmailParser2("a@b")
-  println(p)
-
 }
