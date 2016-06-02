@@ -31,7 +31,7 @@ object EmailParser2 extends Parsers {
 
   def local = opt(comment) | not(DOT()) ~ hasAt
 
-  def comment: Parser[Token] = OPENPARENTHESIS() ~> Generic(_) // <~ CLOSEPARENTHESIS()
+  def comment: Parser[Token] = OPENPARENTHESIS() ~> Generic(_) <~ CLOSEPARENTHESIS()
 
   def hasAt: Parser[Token] = (tr:TokenReader) => {
     if (tr.realSource.contains(AT())) Success(tr.first, tr.rest)
