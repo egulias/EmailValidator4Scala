@@ -4,8 +4,8 @@ sealed trait Token {
   def value:String
 }
 
-sealed case class Generic(override val value:String) extends Token
-sealed case class Other (override val value: String) extends Token
+sealed case class GENERIC(override val value:String) extends Token
+sealed case class OTHER(override val value: String) extends Token
 sealed case class AT (override val value:String = "@") extends Token
 sealed case class DOT (override val value:String = ".") extends Token
 sealed case class OPENPARENTHESIS(override val value:String = "(") extends Token

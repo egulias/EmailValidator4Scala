@@ -41,7 +41,7 @@ object Tokenizer {
   }
 
   def stringToToken(s: String): Token = {
-    special.getOrElse(s, Generic(s))
+    special.getOrElse(s, GENERIC(s))
   }
 }
 
@@ -61,4 +61,6 @@ class TokenReader(override val source: String, override val offset: Int = 0) ext
   }
 
   override def rest = new TokenReader(realSource.tail.map(_.value).mkString, offset+1)
+
+  override def toString = s"starting at ${first.toString}"
 }

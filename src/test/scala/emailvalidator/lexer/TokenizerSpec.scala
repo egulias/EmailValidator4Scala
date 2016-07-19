@@ -10,26 +10,26 @@ class TokenizerSpec extends FunSpec{
     }
 
     it("should produce generic tokens for non special") {
-       assert(List(Generic("test")) === Tokenizer.tokenize("test"))
+       assert(List(GENERIC("test")) === Tokenizer.tokenize("test"))
     }
 
     it("should generate multiple types of tokens for a complex string") {
       val complexString = "A string with: Multiple\\ [t@kens]"
       val expected = List(
-        Generic("A"),
+        GENERIC("A"),
         SPACE(),
-        Generic("string"),
+        GENERIC("string"),
         SPACE(),
-        Generic("with"),
+        GENERIC("with"),
         COLON(),
         SPACE(),
-        Generic("Multiple"),
+        GENERIC("Multiple"),
         BACKSLASH(),
         SPACE(),
         OPENBRACKET(),
-        Generic("t"),
+        GENERIC("t"),
         AT(),
-        Generic("kens"),
+        GENERIC("kens"),
         CLOSEBRACKET()
       )
       assert(expected === Tokenizer.tokenize(complexString))

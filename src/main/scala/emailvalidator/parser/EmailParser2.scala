@@ -9,35 +9,46 @@ object EmailParser2 extends Parsers {
 
   def apply(in: String) = all(new TokenReader(in))
 
-  implicit def fromCondition(f:(TokenReader) => ParseResult[Token]): Parser[Token] = new Parser[Token] {
-      override def apply(in: EmailParser2.Input): EmailParser2.ParseResult[Token] = body(in,f)
-    }
+  implicit def fromCondition(f: (TokenReader) => ParseResult[Token]): Parser[Token] = new Parser[Token] {
+    override def apply(in: EmailParser2.Input): EmailParser2.ParseResult[Token] = body(in, f)
+  }
+
   implicit def fromToken(token: Token): Parser[Token] = new Parser[Token] {
     override def apply(in: EmailParser2.Input): EmailParser2.ParseResult[Token] = {
       body(in, tr => {
-        if (tr.first.equals(token)) Success(in.first, in)
-        else Failure("f", in)
+        if (tr.first.equals(token)) Success(in.first, in.rest)
+        else Failure(s"failed at ${in.first}", in)
       })
 
     }
   }
 
-  def body(in: Input, f:(TokenReader) => ParseResult[Token]) = {
+  def body(in: Input, f: (TokenReader) => ParseResult[Token]) = {
     in match {
-      case in:TokenReader => f(in)
+      case in: TokenReader => f(in)
       case _ => Error("no reader", in.rest)
     }
   }
 
-  def local = opt(comment) | not(DOT()) ~ hasAt
+  def local: Parser[Token] = rep1(log(atom)("local part atom")) ~> comment <~ log(AT())("finding @")
 
-  def comment: Parser[Token] = OPENPARENTHESIS() ~> Generic(_) <~ CLOSEPARENTHESIS()
+  def comment = acceptIf {
+      case _: OPENPARENTHESIS => true
+      case _ => false
+    }(t => "no comment").into(e => log(rep(log(atom)("comment atom")))("rep") <~ log(CLOSEPARENTHESIS())("close paren") into (l => l.last))
 
-  def hasAt: Parser[Token] = (tr:TokenReader) => {
+
+  def atom = acceptIf {
+    case _: GENERIC => true
+    case _ => false
+  }(t => s"failed at $t")
+
+  def hasAt: Parser[Token] = (tr: TokenReader) => {
     if (tr.realSource.contains(AT())) Success(tr.first, tr.rest)
     else Failure("no domain", tr.rest)
   }
-  def domain: Parser[Token] = (tr:TokenReader) => {
+
+  def domain: Parser[Token] = (tr: TokenReader) => {
     if (tr.realSource.tail.nonEmpty) Success(tr.first, tr.rest)
     else Failure("no domain", tr.rest)
   }

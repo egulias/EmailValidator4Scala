@@ -3,6 +3,9 @@ package emailvalidator.parser
 import emailvalidator.lexer.TokenReader
 import org.scalatest.FunSpec
 
+import scala.collection.immutable.HashMap
+import scala.util.parsing.combinator.Parsers
+
 class LocalPartSpec extends FunSpec {
   describe("An email local part") {
     it("should end with @") {
@@ -15,14 +18,24 @@ class LocalPartSpec extends FunSpec {
     }
 
     it("fails for invalid local parts") {
-      val f = (t: String) => {
-          val result = EmailParser2.local(new TokenReader(t))
-          !result.successful //&& result.toString == "f"
+      val f = (localPart: String, expectedMessage: String) => {
+          val result  = EmailParser2.local(new TokenReader(localPart))
+          assert(!result.successful, s"for part $localPart")
+          assert(result.toString === expectedMessage)
         }
-      //String.format("Lat%ss\rtart%s@", "\"", "\"") :
-      val invalidEmails = "unclosed(comment@" :: ".dotAtStart@" :: Nil
 
-      for (t <- invalidEmails) assert(f(t), s"with $t")
+      val invalidLocalParts = HashMap("unclosed(comment@" ->
+        """[1.1] failure: failed at AT(@)
+          |
+          |@
+          |^""".stripMargin,
+        ".dotAtStart@" ->
+          """[1.1] failure: failed at DOT(.)
+            |
+            |.dotAtStart@
+            |^""".stripMargin)
+
+      for (t <- invalidLocalParts) f(t._1, t._2)
     }
   }
 }
