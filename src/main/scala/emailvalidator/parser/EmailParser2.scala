@@ -1,5 +1,6 @@
 package emailvalidator.parser
 
+import emailvalidator.lexer
 import emailvalidator.lexer._
 
 import scala.util.parsing.combinator.Parsers
@@ -13,15 +14,15 @@ object EmailParser2 extends Parsers {
     override def apply(in: EmailParser2.Input): EmailParser2.ParseResult[Token] = body(in, f)
   }
 
-  implicit def fromToken(token: Token): Parser[Token] = new Parser[Token] {
-    override def apply(in: EmailParser2.Input): EmailParser2.ParseResult[Token] = {
-      body(in, tr => {
-        if (tr.first.equals(token)) Success(in.first, in.rest)
-        else Failure(s"failed at ${in.first}", in)
-      })
-
-    }
-  }
+//  implicit def fromToken(token: Token): Parser[Token] = new Parser[Token] {
+//    override def apply(in: EmailParser2.Input): EmailParser2.ParseResult[Token] = {
+//      body(in, tr => {
+//        if (tr.first.equals(token)) Success(in.first, in.rest)
+//        else Failure(s"failed at ${in.first}", in)
+//      })
+//
+//    }
+//  }
 
   def body(in: Input, f: (TokenReader) => ParseResult[Token]) = {
     in match {
@@ -30,13 +31,22 @@ object EmailParser2 extends Parsers {
     }
   }
 
-  def local: Parser[Token] = rep1(log(atom)("local part atom")) ~> comment <~ log(AT())("finding @")
+  def t =
+    repsep(log(atom)("local part atom"), log(opt(DOT()))("dot separator")).flatMap(l=>{
+    if(l.isEmpty)failure(s"Expected ATOM")
+    else success(l)
+  })
 
-  def comment = acceptIf {
-      case _: OPENPARENTHESIS => true
-      case _ => false
-    }(t => "no comment").into(e => log(rep(log(atom)("comment atom")))("rep") <~ log(CLOSEPARENTHESIS())("close paren") into (l => l.last))
+  def pass = Parser{ in => Success(in.first, in) }
 
+  def local: Parser[Token] = log(rep(atom ~> DOT()))("repeat atom") ~> atom ~> log(comment)("comment") <~ log(AT())("finding @")
+
+  def comment: Parser[Token] =
+    opt(OPENPARENTHESIS()) into(op => op match {
+      case Some(x) => rep(log(atom)("comment atom")) ~> CLOSEPARENTHESIS()
+      case None => op.get
+
+    })
 
   def atom = acceptIf {
     case _: GENERIC => true

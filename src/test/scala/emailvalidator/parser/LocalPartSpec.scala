@@ -19,13 +19,13 @@ class LocalPartSpec extends FunSpec {
 
     it("fails for invalid local parts") {
       val f = (localPart: String, expectedMessage: String) => {
-          val result  = EmailParser2.local(new TokenReader(localPart))
-          assert(!result.successful, s"for part $localPart")
-          assert(result.toString === expectedMessage)
-        }
+        val result = EmailParser2.local(new TokenReader(localPart))
+        assert(!result.successful, s"for part $localPart")
+        assert(result.toString === expectedMessage)
+      }
 
       val invalidLocalParts = HashMap("unclosed(comment@" ->
-        """[1.1] failure: failed at AT(@)
+        """[1.1] failure: `CLOSEPARENTHESIS())' expected but AT(@) found
           |
           |@
           |^""".stripMargin,
@@ -33,7 +33,13 @@ class LocalPartSpec extends FunSpec {
           """[1.1] failure: failed at DOT(.)
             |
             |.dotAtStart@
-            |^""".stripMargin)
+            |^""".stripMargin,
+        "example..other@" ->
+          """[1.1] failure: failed at DOT(.)
+            |
+            |.other@
+            |^""".stripMargin
+      )
 
       for (t <- invalidLocalParts) f(t._1, t._2)
     }
