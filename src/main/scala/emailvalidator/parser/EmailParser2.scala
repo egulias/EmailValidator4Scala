@@ -1,6 +1,5 @@
 package emailvalidator.parser
 
-import emailvalidator.lexer
 import emailvalidator.lexer._
 
 import scala.util.parsing.combinator.Parsers
