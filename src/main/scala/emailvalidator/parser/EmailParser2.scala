@@ -8,8 +8,6 @@ import scala.util.parsing.combinator.Parsers
 object EmailParser2 extends Parsers {
   type Elem = Token
 
-  def apply(in: String) = all(new TokenReader(in))
-
   implicit def fromCondition(f: (TokenReader) => ParseResult[Token]): Parser[Token] = new Parser[Token] {
     override def apply(in: EmailParser2.Input): EmailParser2.ParseResult[Token] = body(in, f)
   }
@@ -31,22 +29,17 @@ object EmailParser2 extends Parsers {
     }
   }
 
-  def t =
-    repsep(log(atom)("local part atom"), log(opt(DOT()))("dot separator")).flatMap(l=>{
-    if(l.isEmpty)failure(s"Expected ATOM")
-    else success(l)
-  })
+  def local: Parser[Token] = (log(dquote)("dquoute") | log(rep(atom ~> DOT()))("repeat atom") ~> atom ~> log(comment)("comment")) <~ log(AT())("finding @")
 
-  def pass = Parser{ in => Success(in.first, in) }
-
-  def local: Parser[Token] = log(rep(atom ~> DOT()))("repeat atom") ~> atom ~> log(comment)("comment") <~ log(AT())("finding @")
+  def domain = rep1(atom)
 
   def comment: Parser[Token] =
     opt(OPENPARENTHESIS()) into(op => op match {
       case Some(x) => rep(log(atom)("comment atom")) ~> CLOSEPARENTHESIS()
-      case None => op.get
-
+      case None => Parser{ in => Success(null, in) }
     })
+
+  def dquote: Parser[Token] = log(DQUOTE())("open quote") ~> opt(rep(log(atom)("double quote atom"))) ~> log(DQUOTE())("closing quote")
 
   def atom = acceptIf {
     case _: GENERIC => true
@@ -57,11 +50,4 @@ object EmailParser2 extends Parsers {
     if (tr.realSource.contains(AT())) Success(tr.first, tr.rest)
     else Failure("no domain", tr.rest)
   }
-
-  def domain: Parser[Token] = (tr: TokenReader) => {
-    if (tr.realSource.tail.nonEmpty) Success(tr.first, tr.rest)
-    else Failure("no domain", tr.rest)
-  }
-
-  def all: Parser[Token] = local ~> domain
 }

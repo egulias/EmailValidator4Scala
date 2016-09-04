@@ -38,7 +38,53 @@ class LocalPartSpec extends FunSpec {
           """[1.1] failure: failed at DOT(.)
             |
             |.other@
-            |^""".stripMargin
+            |^""".stripMargin,
+        "user  name@example.com" ->
+          """[1.1] failure: `AT(@)' expected but SPACE( ) found
+            |
+            |  name@example.com
+            |^""".stripMargin,
+        "example.@example.com" ->
+          """[1.1] failure: failed at AT(@)
+            |
+            |@example.com
+            |^""".stripMargin,
+        "example(example]example@example.com" ->
+          """[1.1] failure: `CLOSEPARENTHESIS())' expected but CLOSEBRACKET(]) found
+            |
+            |]example@example.com
+            |^""".stripMargin,
+        "exa\\mple@example.com" ->
+          """[1.1] failure: `AT(@)' expected but BACKSLASH(\) found
+            |
+            |\mple@example.com
+            |^""".stripMargin,
+        "usern,ame@example.com" ->
+          """[1.1] failure: `AT(@)' expected but COMMA(,) found
+            |
+            |,ame@example.com
+            |^""".stripMargin,
+        """"@iana.org""" ->
+          """[1.1] failure: failed at DQUOTE(")
+            |
+            |"@iana.org
+            |^""".stripMargin,
+        """"\"@iana.org""" ->
+        """[1.1] failure: failed at DQUOTE(")
+          |
+          |"\"@iana.org
+          |^""".stripMargin,
+        """"test""test"@iana.org"""->
+        """[1.1] failure: `AT(@)' expected but DQUOTE(") found
+          |
+          |"test"@iana.org
+          |^""".stripMargin,
+        """"test"."test"@iana.org""" ->
+        """[1.1] failure: `AT(@)' expected but DOT(.) found
+          |
+          |."test"@iana.org
+          |^""".stripMargin
+
       )
 
       for (t <- invalidLocalParts) f(t._1, t._2)
