@@ -13,6 +13,11 @@ class TokenizerSpec extends FunSpec{
        assert(List(GENERIC("test")) === Tokenizer.tokenize("test"))
     }
 
+    it("should mark non ascii chars") {
+      assert(List(GENERIC("â", false)) === Tokenizer.tokenize("â"))
+      assert(List(GENERIC("e", true)) === Tokenizer.tokenize("e"))
+    }
+
     it("should generate multiple types of tokens for a complex string") {
       val complexString = "A string with: Multiple\\ [t@kens]"
       val expected = List(

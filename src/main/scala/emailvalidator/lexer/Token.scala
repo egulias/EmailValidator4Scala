@@ -2,9 +2,10 @@ package emailvalidator.lexer
 
 sealed trait Token {
   def value:String
+  def isAscii: Boolean = true
 }
 
-sealed case class GENERIC(override val value:String) extends Token
+sealed case class GENERIC(override val value:String, override val isAscii: Boolean = true) extends Token
 sealed case class OTHER(override val value: String) extends Token
 sealed case class AT (override val value:String = "@") extends Token
 sealed case class DOT (override val value:String = ".") extends Token

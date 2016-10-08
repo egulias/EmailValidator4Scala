@@ -1,43 +1,47 @@
 package emailvalidator.parser
 
-import scala.util.parsing.combinator._
-;
+import emailvalidator.lexer._
 
-class EmailParser extends RegexParsers {
+import scala.util.parsing.combinator.Parsers
 
-//  def at: Parser[Tokens] = """([a-zA-Z_]+[46]?)|([0-9]+)|(\r\n)|(::)|(\\s+?)|(.)|(\p{Cc}+)""".r ^^ {Token.fromString(_)}
+object EmailParser extends Parsers {
+  type Elem = Token
 
-  def atom = """[a-zA-Z_]+""".r
-  def escapes = "".r
-  def basicLocalPart: Parser[String] = atom
-  def localPart: Parser[String] = basicLocalPart ~> "@".r
-  def tld: Parser[String] = atom
-  def noTldDomainPart: Parser[String] = tld ~> rep("""\.""".r ~> atom) ^^ { _.toString } | tld
-//  def basicDomainPart: Parser[String] = localPart ~> atom ~> rep(tld).toString()
-  def emailParser: Parser[String] = localPart ~> noTldDomainPart
-}
+  implicit def fromCondition(f: (TokenReader) => ParseResult[Token]): Parser[Token] = new Parser[Token] {
+    override def apply(in: EmailParser.Input): EmailParser.ParseResult[Token] = body(in, f)
+  }
 
-object EmailValidator extends EmailParser {
-  def isValid(input: String): Boolean = {
-    try {
-      parseAll(emailParser, input) match {
-        case Success(result, _) => true
-        case failure: NoSuccess =>
-          scala.sys.error(failure.msg)
-          true
-        case error: Error =>
-          scala.sys.error(error.msg)
-          false
-      }
-    } catch {
-      case e: RuntimeException => false
+  def body(in: Input, f: (TokenReader) => ParseResult[Token]) = {
+    in match {
+      case in: TokenReader => f(in)
+      case _ => Error("no reader", in.rest)
     }
   }
-}
 
-//object Test extends App {
-//  val result = EmailValidator.parseAll(EmailValidator.emailParser, "â@iana.org")
-//  val t = Tokenizer.tokenize("example@exampel.com")
-//
-//  t.foreach(println)
-//}
+  def local: Parser[Token] = (log(dquote)("dquoute") | log(rep(atom ~> DOT()))("repeat atom") ~> atom ~> log(comment)("comment")) <~ log(AT())("finding @")
+
+  def comment: Parser[Token] =
+    opt(OPENPARENTHESIS()) into(op => op match {
+      case Some(x) => rep(log(atom)("comment atom")) ~> CLOSEPARENTHESIS()
+      case None => Parser{ in => Success(null, in) }
+    })
+
+  def dquote: Parser[Token] = log(DQUOTE())("open quote") ~> opt(rep(log(atom)("double quote atom"))) ~> log(DQUOTE())("closing quote")
+
+  def domain = phrase(log(domainAtom)("domain atom") ~> log(rep(DOT() ~> domainAtom))("repeat domain atom"))
+
+  def atom = acceptIf {
+    case _: GENERIC => true
+    case _ => false
+  }(t => s"failed at $t")
+
+  def domainAtom = acceptIf {
+      case c: GENERIC => c.isAscii
+      case _ => false
+    }(t => s"failed at $t")
+
+  def hasAt: Parser[Token] = (tr: TokenReader) => {
+    if (tr.realSource.contains(AT())) Success(tr.first, tr.rest)
+    else Failure("no domain", tr.rest)
+  }
+}

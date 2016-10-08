@@ -41,7 +41,7 @@ object Tokenizer {
   }
 
   def stringToToken(s: String): Token = {
-    special.getOrElse(s, GENERIC(s))
+    special.getOrElse(s, GENERIC(s, """^[\x20-\x7F]+$""".r.findAllIn(s).nonEmpty))
   }
 }
 
