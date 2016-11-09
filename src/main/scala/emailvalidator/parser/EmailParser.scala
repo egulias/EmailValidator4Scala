@@ -41,7 +41,7 @@ object EmailParser extends Parsers {
     }(t => s"failed at $t")
 
   def hasAt: Parser[Token] = (tr: TokenReader) => {
-    if (tr.realSource.contains(AT())) Success(tr.first, tr.rest)
+    if (tr.tokenizedSource.contains(AT())) Success(tr.first, tr.rest)
     else Failure("no domain", tr.rest)
   }
 }

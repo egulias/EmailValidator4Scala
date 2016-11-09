@@ -46,11 +46,11 @@ object Tokenizer {
 }
 
 class TokenReader(override val source: String, override val offset: Int = 0) extends Reader[Token] {
-  val realSource: List[Token] = Tokenizer.tokenize(source)
+  val tokenizedSource: List[Token] = Tokenizer.tokenize(source)
 
-  override def first: Token = realSource.head
+  override def first: Token = if(tokenizedSource.isEmpty)NUL() else tokenizedSource.head
 
-  override def atEnd: Boolean = realSource.isEmpty
+  override def atEnd: Boolean = tokenizedSource.isEmpty
 
   override def pos: Position = new Position {
     override def column: Int = 1
@@ -60,7 +60,7 @@ class TokenReader(override val source: String, override val offset: Int = 0) ext
     override protected def lineContents: String = source.toString
   }
 
-  override def rest = new TokenReader(realSource.tail.map(_.value).mkString, offset+1)
+  override def rest = if(atEnd)this else new TokenReader(tokenizedSource.tail.map(_.value).mkString, offset+1)
 
   override def toString = s"starting at ${first.toString}"
 }
