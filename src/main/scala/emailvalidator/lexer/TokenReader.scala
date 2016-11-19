@@ -19,6 +19,7 @@ object Tokenizer {
     (",",COMMA()),
     (".",DOT()),
     ("\"",DQUOTE()),
+    ("'",QUOTE()),
     ("-",DASH()),
     ("::",DOUBLECOLON()),
     (" ",SPACE()),

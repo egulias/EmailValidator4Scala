@@ -18,7 +18,12 @@ object EmailParser extends Parsers {
     }
   }
 
-  def local: Parser[Token] = (log(dquote)("dquoute") | log(rep(atom ~> DOT()))("repeat atom") ~> atom ~> log(comment)("comment")) <~ log(AT())("finding @")
+  def local: Parser[Token] = (log(dquote)("dquoute") | log(rep(atom ~> opt(DOT() ~> atom)))("repeat atom") <~ log(opt(escaped))("escaped")) ~> log(comment)("comment") <~ log(AT())("finding @")
+
+  def atom = acceptIf {
+    case _: GENERIC => true
+    case _ => false
+  }(t => s"failed at $t")
 
   def comment: Parser[Token] =
     opt(OPENPARENTHESIS()) into(op => op match {
@@ -28,12 +33,16 @@ object EmailParser extends Parsers {
 
   def dquote: Parser[Token] = log(DQUOTE())("open quote") ~> opt(rep(log(atom)("double quote atom"))) ~> log(DQUOTE())("closing quote")
 
-  def domain = phrase(log(domainAtom)("domain atom") ~> log(rep(DOT() ~> domainAtom))("repeat domain atom"))
+  def escaped = log(BACKSLASH())("escaped backslash") ~ log(consumeTokenNot(atom))("not atom") ~> atom
 
-  def atom = acceptIf {
-    case _: GENERIC => true
-    case _ => false
-  }(t => s"failed at $t")
+  private def consumeTokenNot [T](p: => Parser[T]): Parser[Unit] = Parser { in =>
+    p(in) match {
+      case Success(_, _)  => Failure("Expected failure", in)
+      case _              => Success(in.first, in.rest)
+    }
+  }
+
+  def domain = phrase(log(domainAtom)("domain atom") ~> log(rep(DOT() ~> domainAtom))("repeat domain atom"))
 
   def domainAtom = acceptIf {
       case c: GENERIC => c.isAscii

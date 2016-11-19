@@ -21,6 +21,7 @@ sealed case class BACKSLASH(override val value:String = "\\") extends Token
 sealed case class SLASH(override val value:String = "/") extends Token
 sealed case class COMMA(override val value:String = ",") extends Token
 sealed case class DQUOTE(override val value:String = "\"") extends Token
+sealed case class QUOTE(override val value:String = "'") extends Token
 sealed case class DASH(override val value:String = "-") extends Token
 sealed case class DOUBLECOLON(override val value:String = "::") extends Token
 sealed case class SPACE(override val value:String = " ") extends Token
