@@ -7,12 +7,12 @@ import scala.collection.immutable.HashMap
 
 class DomainPartSpec extends FunSpec {
   describe("An email domain part") {
+    def emailAssert = (part: String, expectedMessage: String) => {
+      val result = EmailParser.domain(new TokenReader(part))
+      assert(!result.successful, s"for part $part")
+      assert(result.toString === expectedMessage)
+    }
     it("should be invalid") {
-      val f = (localPart: String, expectedMessage: String) => {
-        val result = EmailParser.domain(new TokenReader(localPart))
-        assert(!result.successful, s"for part $localPart")
-        assert(result.toString === expectedMessage)
-      }
       val invalidDomainParts = HashMap("example.com test" ->
         """[1.1] failure: `DOT(.)' expected but SPACE( ) found
           |
@@ -48,11 +48,11 @@ class DomainPartSpec extends FunSpec {
             |
             |,com
             |^""".stripMargin,
-        """â.org""" ->
-          """[1.1] failure: failed at GENERIC(â,false)
-            |
-            |â.org
-            |^""".stripMargin,
+//        """â.org""" ->
+//          """[1.1] failure: failed at GENERIC(â,false)
+//            |
+//            |â.org
+//            |^""".stripMargin,
         """iana.org \r\n""" ->
           """[1.1] failure: `DOT(.)' expected but SPACE( ) found
             |
@@ -85,7 +85,30 @@ class DomainPartSpec extends FunSpec {
           |^""".stripMargin
 
       )
-      for (t <- invalidDomainParts) f(t._1, t._2)
+      for (t <- invalidDomainParts) emailAssert(t._1, t._2)
+    }
+
+    it("should be a valid domain") {
+      val validDomainParts = List("localhost", "example(example).com", "письмо.рф", "möller.com",
+        "test@email*", "test@email!", "test@email&",
+        "test@email^", "test@email%", "test@email$",
+        "with-hyphen.com", "профи-инвест.рф"
+      )
+      for (domainString <- validDomainParts) {
+        val result = EmailParser.domain(new TokenReader(domainString))
+        assert(result.successful, s"for part $domainString")
+      }
+
+    }
+
+    it("should be a valid literal address") {
+
+      /*
+
+            [IPv6:12ab:bc45::1]
+            [192.168.1.2]
+            [IPv4192.168.1.2]
+       */
     }
   }
 }

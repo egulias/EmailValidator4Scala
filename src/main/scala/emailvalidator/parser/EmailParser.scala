@@ -41,10 +41,10 @@ object EmailParser extends Parsers {
     }
   }
 
-  def domain = phrase(log(domainAtom)("domain atom") ~> log(rep(DOT() ~> domainAtom))("repeat domain atom"))
+  def domain = phrase(log(domainAtom)("domain atom") ~> opt(comment) <~ log(rep(DOT() ~> domainAtom))("repeat domain atom"))
 
   def domainAtom = acceptIf {
-    case c: GENERIC => c.isAscii
+    case c: GENERIC => true//c.isAscii
     case _ => false
   }(t => s"failed at $t")
 
