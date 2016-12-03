@@ -34,7 +34,8 @@ object Tokenizer {
   )
 
   def tokenize(value: String): List[Token] = {
-    val r = """([a-zA-Z_]+[46]?)|([0-9]+)|(\r\n)|(::)|(\\s+?)|(.)|(\p{Cc}+)""".r.findAllIn(value)
+    val r = """(?ui)([a-zA-Z_+0-9\p{L}]+)|(\r\n)|(::)|(\\s+?)|(.)|(\p{Cc}+)""".r.findAllIn(value)
+//    val r = """([a-zA-Z_+]+[46]?)|([0-9]+)|(\r\n)|(::)|(\\s+?)|(.)|(\p{Cc}+)""".r.findAllIn(value)
     val l = for(
       s <- r
     ) yield stringToToken(s)

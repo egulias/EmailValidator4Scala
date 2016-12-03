@@ -18,7 +18,7 @@ object EmailParser extends Parsers {
     }
   }
 
-  def local = (log(dquote)("dquoute") | log(rep(atom ~> opt(DOT() ~> atom)))("repeat atom") <~ (log(escaped)("escaped") | log(comment)("comment2")) | Parser{in=>Success(in.first, in.rest)}) <~ log(AT())("finding @")
+  def local = (log(dquote)("dquoute") | log(rep(atom ~> opt(DOT() ~> atom )))("repeat atom") <~ (log(escaped)("escaped") | log(comment)("comment2")) | Parser{in=>Success(in.first, in.rest)}) <~ log(AT())("finding @")
 
   def atom = acceptIf {
     case _: GENERIC => true
@@ -28,7 +28,9 @@ object EmailParser extends Parsers {
 
   def comment: Parser[Token] = OPENPARENTHESIS() ~> (atom | comment) <~ CLOSEPARENTHESIS()
 
-  def dquote: Parser[Token] = log(DQUOTE())("open quote") ~> opt(rep(log(atom)("double quote atom"))) ~> log(DQUOTE())("closing quote")
+  def dquote = log(DQUOTE())("open quote") ~> rep(log(dquoteAtom)("double quote atom")) <~ log(DQUOTE())("closing quote")
+
+  def dquoteAtom:Parser[Token] = atom | COMMA() | AT() | SPACE() | (BACKSLASH() ~> DQUOTE()) |(BACKSLASH() <~ dquoteAtom) | BACKSLASH()
 
   def escaped = log(BACKSLASH())("escaped backslash") ~ log(consumeTokenNot(atom))("not atom") ~> atom
 
