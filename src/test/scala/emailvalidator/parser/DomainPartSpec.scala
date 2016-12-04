@@ -102,13 +102,35 @@ class DomainPartSpec extends FunSpec {
     }
 
     it("should be a valid literal address") {
-
       /*
 
             [IPv6:12ab:bc45::1]
             [192.168.1.2]
             [IPv4192.168.1.2]
        */
+      val validDomainLiterals = List("[IPv6:12ab:bc45::1]", "[IPv6:12ab:bc45:5bfa:14ff]",
+        "[192.168.1.2]"
+      )
+      for (domainString <- validDomainLiterals) {
+        val result = EmailParser.domain(new TokenReader(domainString))
+        assert(result.successful, s"for part $domainString")
+      }
+    }
+
+    it("should be a invalid literal address") {
+      /*
+
+            [IPv6:12ab:gc45::1]
+            [192.168.1.2]
+            [IPv4192.168.1.2]
+       */
+      val validDomainLiterals = List("[IPv6:12ab:gc45::1]", "[256.168.2.1]", "[192.256.2.1]",
+        "[192.168.256.1]", "[192.168.2.256]"
+      )
+      for (domainString <- validDomainLiterals) {
+        val result = EmailParser.domain(new TokenReader(domainString))
+        assert(result.successful, s"for part $domainString")
+      }
     }
   }
 }
