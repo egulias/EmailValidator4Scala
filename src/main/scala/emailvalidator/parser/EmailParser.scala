@@ -28,11 +28,11 @@ object EmailParser extends Parsers {
   }(t => s"failed at $t")
 
 
-  def comment: Parser[Token] = OPENPARENTHESIS() ~> (atom | comment) <~ CLOSEPARENTHESIS()
+  def comment: Parser[Token] = OPENPARENTHESIS() ~> (atom | comment) <~ CLOSEPARENTHESIS() ~ opt(SPACE())
 
-  def dquote = log(DQUOTE())("open quote") ~> rep(log(dquoteAtom)("double quote atom")) <~ log(DQUOTE())("closing quote")
+  def dquote = log(DQUOTE())("open quote") ~> commit(rep(log(dquoteAtom)("double quote atom")) <~ log(DQUOTE())("closing quote"))
 
-  def dquoteAtom:Parser[Token] = atom | COMMA() | AT() | SPACE() | (BACKSLASH() ~> DQUOTE()) |(BACKSLASH() <~ dquoteAtom) | BACKSLASH()
+  def dquoteAtom:Parser[Token] = atom | COMMA() | AT() | SPACE() | (BACKSLASH() ~> DQUOTE()) | BACKSLASH()
 
   def escaped = log(BACKSLASH())("escaped backslash") ~ log(consumeTokenNot(atom))("not atom") ~> atom
 
