@@ -3,6 +3,7 @@ package emailvalidator.parser
 import emailvalidator.lexer
 import emailvalidator.lexer._
 
+import scala.annotation.tailrec
 import scala.util.parsing.combinator.Parsers
 
 object EmailParser extends Parsers {
@@ -42,25 +43,49 @@ object EmailParser extends Parsers {
     }
   }
 
-  def domain = phrase(log(literalDomain)("litdom") | (log(domainAtom)("domain atom") ~> opt(comment) <~ log(rep(DOT() ~> domainAtom))("repeat domain atom")))
+  def domain = phrase(log(literalDomain)("litdom") | (log(rep(domainAtom))("domain atom") ~> opt(comment) <~ log(rep(DOT() ~> domainAtom))("repeat domain atom")))
 
   def literalDomain = OPENBRACKET() ~> (log(IPv6)("IPv6") | log(IPv4)("IPv4")) <~ CLOSEBRACKET()
 
-  def IPv6 = IPV6TAG() ~ COLON() ~ repsep(opt(hex), COLON())
+  def IPv6 = IPV6TAG() ~ (COLON() ~ opt(COLON())) ~ rep(opt(IPv6part) ~ COLON()) into {
+    case _ ~ (COLON(_)~Some(_)) ~ xs =>
+      @tailrec
+      def inspect(l:List[_], acc:Int): Parser[Token] = {
+        if(acc > 7) Parser[Token]{ in => Failure("More than 7 groups", in)}
+        else {
+          l match {
+            case (None~COLON(_)) :: Nil => Parser[Token]{ in => Success(in.first, in)}
+            case _ :: ls => inspect(ls, acc+1)
+            case Nil => Parser[Token] {in => Failure("Missing groups", in)}
+          }
+        }
+      }
+      inspect(xs, 0)
+    case _ ~ _ ~ gs if gs.size > 7 =>
+      Parser[Token]{ in => Failure("More than 8 groups", in)}
+    case _ => Parser[Token]{ in => Success(in.first, in.rest)}
+  }
 
-  def hex = atom
+  def IPv6part = acceptIf {
+    case x: GENERIC => x.canBeIPv6
+    case _ => false
+  }(t => s"failed at $t")
 
-  def IPv4 = log(repsep(IPpart, DOT()))("repsep") into {
+  def IPv4 = log(repsep(IPv4part, DOT()))("repsep") into {
     case Nil => Parser[Token] {in => Success(in.first, in)}
     case xs if xs.length > 4 => Parser[Token] {in => Failure("More than 4 elements in IPv4", in)}
     case xs => Parser[Token] {in => Success(in.first, in)}
   }
 
-  def IPpart = atom
+  def IPv4part = acceptIf {
+    case x: GENERIC => x.canBeIPv4
+    case _ => false
+  }(t => s"failed at $t")
 
 
   def domainAtom = acceptIf {
-    case c: GENERIC => true
+    case _: GENERIC => true
+    case _:DASH => true
     case _ => false
   }(t => s"failed at $t")
 
