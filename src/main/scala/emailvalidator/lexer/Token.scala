@@ -31,8 +31,6 @@ object Token {
     ("\n",LF()),
     ("\r\n",CRLF()),
     ("IPv6",IPV6TAG()),
-    ("{",OPENCURLYBRACES()),
-    ("}",CLOSECURLYBRACES()),
     ("\0",NUL())
   )
 

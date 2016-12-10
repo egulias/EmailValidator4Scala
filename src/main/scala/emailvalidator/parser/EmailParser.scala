@@ -20,10 +20,13 @@ object EmailParser extends Parsers {
     }
   }
 
-  def local = (log(dquote)("dquoute") | log(rep(atom ~> opt(DOT() ~> atom )))("repeat atom") <~ (log(escaped)("escaped") | log(comment)("comment2")) | Parser{in=>Success(in.first, in.rest)}) <~ log(AT())("finding @")
+  def local = (log(dquote)("dquoute") | log(rep(atom ~> opt(DOT() <~ atom )))("repeat atom") <~ (log(comment)("comment2") | Parser{in=>Success(in.first, in)})) ~> log(AT())("finding @")
 
   def atom = acceptIf {
     case _: GENERIC => true
+    case _: QUOTE => true
+    case _: DASH => true
+    case _: SLASH => true
     case _ => false
   }(t => s"failed at $t")
 
