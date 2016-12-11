@@ -16,7 +16,7 @@ object Tokenizer {
 class TokenReader(override val source: String, override val offset: Int = 0) extends Reader[Token] {
   val tokenizedSource: List[Token] = Tokenizer.tokenize(source)
 
-  override def first: Token = if(tokenizedSource.isEmpty)NUL() else tokenizedSource.head
+  override def first: Token = if(tokenizedSource.isEmpty) NUL else tokenizedSource.head
 
   override def atEnd: Boolean = tokenizedSource.isEmpty
 

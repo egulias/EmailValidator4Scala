@@ -5,28 +5,25 @@ import emailvalidator.lexer._
 import scala.annotation.tailrec
 import scala.collection.immutable.Nil
 import scala.util.parsing.combinator.Parsers
-import scala.util.parsing.input.Reader
 
 object EmailParser extends Parsers {
   type Elem = Token
 
-  def local = (log(dquote)("dquoute") | log(rep(atom ~> opt(DOT() <~ atom )))("repeat atom") <~ (log(comment)("comment2") | Parser{in=>Success(in.first, in)})) ~> log(AT())("finding @")
+  def local = (log(dquote)("dquoute") | log(rep(atom ~> opt(DOT <~ atom )))("repeat atom") <~ (log(comment)("comment2") | Parser{in=>Success(in.first, in)})) ~> log(AT)("finding @")
 
   private def atom = acceptIf {
     case _: GENERIC => true
-    case _: QUOTE => true
-    case _: DASH => true
-    case _: SLASH => true
+    case QUOTE | DASH | SLASH => true
     case _ => false
   }(t => s"failed at $t")
 
-  private def comment: Parser[Token] = OPENPARENTHESIS() ~> (atom | comment) <~ CLOSEPARENTHESIS() ~ opt(SPACE())
+  private def comment: Parser[Token] = OPENPARENTHESIS ~> (atom | comment) <~ CLOSEPARENTHESIS ~ opt(SPACE)
 
-  private def dquote = log(DQUOTE())("open quote") ~> commit(rep(log(dquoteAtom)("double quote atom")) <~ log(DQUOTE())("closing quote"))
+  private def dquote = log(DQUOTE)("open quote") ~> commit(rep(log(dquoteAtom)("double quote atom")) <~ log(DQUOTE)("closing quote"))
 
-  private def dquoteAtom:Parser[Token] = atom | COMMA() | AT() | SPACE() | (BACKSLASH() ~> DQUOTE()) | BACKSLASH()
+  private def dquoteAtom:Parser[Token] = atom | COMMA | AT | SPACE | (BACKSLASH ~> DQUOTE) | BACKSLASH
 
-  private def escaped = log(BACKSLASH())("escaped backslash") ~ log(consumeTokenNot(atom))("not atom") ~> atom
+  private def escaped = log(BACKSLASH)("escaped backslash") ~ log(consumeTokenNot(atom))("not atom") ~> atom
 
   private def consumeTokenNot[T](p: => Parser[T]): Parser[Unit] = Parser { in =>
     p(in) match {
@@ -35,18 +32,18 @@ object EmailParser extends Parsers {
     }
   }
 
-  def domain = phrase(log(literalDomain)("litdom") | (log(rep1(domainAtom))("domain atom") ~ log(rep(DOT() ~> domainAtom))("repeat domain atom")))
+  def domain = phrase(log(literalDomain)("litdom") | (log(rep1(domainAtom))("domain atom") ~ log(rep(DOT ~> domainAtom))("repeat domain atom")))
 
-  private def literalDomain = OPENBRACKET() ~> (log(IPv6)("IPv6") | log(IPv4)("IPv4")) <~ CLOSEBRACKET()
+  private def literalDomain = OPENBRACKET ~> (log(IPv6)("IPv6") | log(IPv4)("IPv4")) <~ CLOSEBRACKET
 
-  private def IPv6 = IPV6TAG() ~ (COLON() ~ opt(COLON())) ~ rep(opt(IPv6part) ~ COLON()) into {
-    case _ ~ (COLON(_)~Some(_)) ~ xs =>
+  private def IPv6 = IPV6TAG ~ (COLON ~ opt(COLON)) ~ rep(opt(IPv6part) ~ COLON) into {
+    case _ ~ (COLON~Some(_)) ~ xs =>
       @tailrec
       def inspect(l:List[_], acc:Int): Parser[Token] = {
         if(acc > 7) Parser[Token]{ in => Failure("More than 7 groups", in)}
         else {
           l match {
-            case (None~COLON(_)) :: Nil => Parser[Token]{ in => Success(in.first, in)}
+            case (None~COLON) :: Nil => Parser[Token]{ in => Success(in.first, in)}
             case _ :: ls => inspect(ls, acc+1)
             case Nil => Parser[Token] {in => Failure("Missing groups", in)}
           }
@@ -63,7 +60,7 @@ object EmailParser extends Parsers {
     case _ => false
   }(t => s"failed at $t")
 
-  private def IPv4 = log(repsep(IPv4part, DOT()))("repsep") into {
+  private def IPv4 = log(repsep(IPv4part, DOT))("repsep") into {
     case Nil => Parser[Token] {in => Success(in.first, in)}
     case xs if xs.length > 4 => Parser[Token] {in => Failure("More than 4 elements in IPv4", in)}
     case _ => Parser[Token] {in => Success(in.first, in)}
@@ -76,7 +73,7 @@ object EmailParser extends Parsers {
 
   private def domainAtom = acceptIf {
     case _: GENERIC => true
-    case _:DASH => true
+    case DASH => true
     case _ => false
   }(t => s"failed at $t")
 

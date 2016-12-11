@@ -17,41 +17,22 @@ class TokenizerSpec extends FunSpec{
       val complexString = "A string with: Multiple\\ [t@kens]"
       val expected = List(
         GENERIC("A"),
-        SPACE(),
+        SPACE,
         GENERIC("string"),
-        SPACE(),
+        SPACE,
         GENERIC("with"),
-        COLON(),
-        SPACE(),
+        COLON,
+        SPACE,
         GENERIC("Multiple"),
-        BACKSLASH(),
-        SPACE(),
-        OPENBRACKET(),
+        BACKSLASH,
+        SPACE,
+        OPENBRACKET,
         GENERIC("t"),
-        AT(),
+        AT,
         GENERIC("kens"),
-        CLOSEBRACKET()
+        CLOSEBRACKET
       )
       assert(expected === Tokenizer.tokenize(complexString))
     }
-
-//    it("should generate IPv4 tokens") {
-//      val ip = "192.168.1.2"
-//      val expected = IPv4("192") :: DOT() :: IPv4("168") :: DOT() :: IPv4("1") :: DOT() :: IPv4("2") :: Nil
-//      assert(expected === Tokenizer.tokenize(ip))
-//    }
-//
-//    it("should generate IPv6 tokens") {
-//      val ip = "[IPv6:12ab:ba12:1234:faab]"
-//      val expected = OPENBRACKET() :: IPV6TAG() :: COLON() :: IPv6("12ab") :: COLON() :: IPv6("ba12") :: COLON() :: IPv6("1234") :: COLON() :: IPv6("faab") :: CLOSEBRACKET() :: Nil
-//      assert(expected === Tokenizer.tokenize(ip))
-//    }
-//
-//    it("should generate IPv6 tokens for 1 digit") {
-//      val ip = "[IPv6:12ab:ba12:1234:1]"
-//      val expected = OPENBRACKET() :: IPV6TAG() :: COLON() :: IPv6("12ab") :: COLON() :: IPv6("ba12") :: COLON() :: IPv6("1234") :: COLON() :: IPv6("1") :: CLOSEBRACKET() :: Nil
-//      assert(expected === Tokenizer.tokenize(ip))
-//    }
   }
-
 }
