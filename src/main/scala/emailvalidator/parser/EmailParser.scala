@@ -23,15 +23,6 @@ object EmailParser extends Parsers {
 
   private def dquoteAtom:Parser[Token] = atom | COMMA | AT | SPACE | (BACKSLASH ~> DQUOTE) | BACKSLASH
 
-  private def escaped = log(BACKSLASH)("escaped backslash") ~ log(consumeTokenNot(atom))("not atom") ~> atom
-
-  private def consumeTokenNot[T](p: => Parser[T]): Parser[Unit] = Parser { in =>
-    p(in) match {
-      case Success(_, _) => Failure("Expected failure", in)
-      case _ => Success(in.first, in.rest)
-    }
-  }
-
   def domain = phrase(log(literalDomain)("litdom") | (log(rep1(domainAtom))("domain atom") ~ log(rep(DOT ~> domainAtom))("repeat domain atom")))
 
   private def literalDomain = OPENBRACKET ~> (log(IPv6)("IPv6") | log(IPv4)("IPv4")) <~ CLOSEBRACKET
