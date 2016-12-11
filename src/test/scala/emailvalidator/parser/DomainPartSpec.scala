@@ -89,7 +89,7 @@ class DomainPartSpec extends FunSpec {
     }
 
     it("should be a valid domain") {
-      val validDomainParts = List("localhost", "example(example).com", "письмо.рф", "möller.com",
+      val validDomainParts = List("localhost", "письмо.рф", "möller.com",
         "email*", "email!", "email&", "email^", "email%", "email$", "with-hyphen.com", "профи-инвест.рф"
       )
       for (domainString <- validDomainParts) {
