@@ -5,6 +5,7 @@ import scala.collection.immutable.HashMap
 sealed trait Token {
   def value:String
   def isAscii: Boolean = true
+  def length:Int = value.length
 }
 
 object Token {

@@ -1,6 +1,6 @@
 package emailvalidator.lexer
 
-import scala.util.parsing.input.{Position, Reader}
+import scala.util.parsing.input.{OffsetPosition, Position, Reader}
 
 object Tokenizer {
 
@@ -20,13 +20,7 @@ class TokenReader(override val source: String, override val offset: Int = 0) ext
 
   override def atEnd: Boolean = tokenizedSource.isEmpty
 
-  override def pos: Position = new Position {
-    override def column: Int = 1
-
-    override def line: Int = 1
-
-    override protected def lineContents: String = source.toString
-  }
+  override def pos: Position = OffsetPosition(source, offset)
 
   override def rest = if(atEnd)this else new TokenReader(tokenizedSource.tail.map(_.value).mkString, offset+1)
 

@@ -143,5 +143,19 @@ class DomainPartSpec extends FunSpec {
       }
     }
 
+    it("is a domain part too long") {
+      val email =
+        "toolonglocalparttoolonglocalparttoolonglocalparttoolonglocalparttoolonglocalpart" +
+          "toolonglocalparttoolonglocalparttoolonglocalparttoolonglocalparttoolonglocalpart" +
+          "toolonglocalparttoolonglocalparttoolonglocalparttoolonglocalparttoolonglocalpart" +
+          "toolonglocalpar"
+      val result = EmailParser.domain(new TokenReader(email))
+      assert(!result.successful, s"for part $email")
+    }
+    /*
+
+     ''
+     */
+
   }
 }

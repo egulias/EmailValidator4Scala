@@ -9,8 +9,15 @@ import scala.util.parsing.combinator.Parsers
 object EmailParser extends Parsers {
   type Elem = Token
 
-  def local:Parser[Token] =
-    (dquote | rep(atom ~> opt(DOT <~ atom )) <~ (comment | Parser{in=>Success(in.first, in)})) ~> AT
+  def local:Parser[Token] = {
+    localPartSize ~ (dquote | rep(atom ~> opt(DOT <~ atom )) <~ (comment | Parser{in=>Success(in.first, in)})) ~> AT
+  }
+
+  private def localPartSize = Parser {in =>
+    val sizeWithoutAt:Int = in.asInstanceOf[TokenReader].tokenizedSource.filter(t => !t.eq(AT)).map(t=>t.length).sum
+    if (sizeWithoutAt < 65) Success(in.first,in)
+    else Failure("More than 64 chars in local part", in)
+  }
 
   private def atom = acceptIf {
     case _: GENERIC => true
@@ -24,7 +31,13 @@ object EmailParser extends Parsers {
 
   private def dquoteAtom:Parser[Token] = atom | COMMA | AT | SPACE | (BACKSLASH ~> DQUOTE) | BACKSLASH
 
-  def domain:Parser[Object] = phrase(literalDomain | (rep1(domainAtom) ~ rep(DOT ~> domainAtom)))
+  def domain:Parser[Object] = phrase(domainPartSize ~ (literalDomain | (rep1(domainAtom) ~ rep(DOT ~> domainAtom))))
+
+  private def domainPartSize = Parser {in =>
+    val sizeWithoutAt:Int = in.asInstanceOf[TokenReader].tokenizedSource.filter(t => !t.eq(AT)).map(t=>t.length).sum
+    if (sizeWithoutAt < 255) Success(in.first,in)
+    else Failure("More than 254 chars in local part", in)
+  }
 
   private def literalDomain = OPENBRACKET ~> (IPv6 | IPv4) <~ CLOSEBRACKET
 
