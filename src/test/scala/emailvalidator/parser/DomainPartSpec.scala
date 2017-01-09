@@ -48,11 +48,6 @@ class DomainPartSpec extends FunSpec {
             |
             |,com
             |^""".stripMargin,
-//        """â.org""" ->
-//          """[1.1] failure: failed at GENERIC(â,false)
-//            |
-//            |â.org
-//            |^""".stripMargin,
         """iana.org \r\n""" ->
           """[1.1] failure: `DOT(.)' expected but SPACE( ) found
             |
@@ -82,6 +77,21 @@ class DomainPartSpec extends FunSpec {
         """[1.1] failure: `DOT(.)' expected but GREATERTHAN(>) found
           |
           |>
+          |^""".stripMargin,
+        """email-.co.uk""" ->
+          """[1.1] failure: failed at
+            |
+            |change
+            |^""".stripMargin,
+        """email-""" ->
+          """[1.1] failure: failed at
+            |
+            |change
+            |^""".stripMargin,
+      """-email.com""" ->
+        """[1.1] failure: failed at
+          |
+          |change
           |^""".stripMargin
 
       )

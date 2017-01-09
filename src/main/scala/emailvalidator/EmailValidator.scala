@@ -6,43 +6,32 @@ import emailvalidator.parser.EmailParser
 import scala.util.parsing.input.Reader
 
 sealed trait ValidationResult {
-  def hasWarnings: Boolean
-  def warnings: List[Warning]
+  def warnings: Option[List[Warning]] = None
   def isSuccess: Boolean
   def isFailure: Boolean
 }
 
 sealed case class Warning (msg:String, explanation:String)
 
-case class Success(warns: List[Warning] = Nil) extends ValidationResult {
-  override def hasWarnings:Boolean = warns.nonEmpty
-
+case class Success(override val warnings: Option[List[Warning]] = None) extends ValidationResult {
   override def isFailure = false
-
   override def isSuccess = true
-
-  override def warnings: List[Warning] = warns
 }
 
 
 case class Failure(msg:String) extends ValidationResult {
-  override def hasWarnings = false
-
   override def isFailure = true
-
   override def isSuccess = false
-
-  override def warnings = Nil
 }
 
 object EmailValidator {
-  def validate(email:String): ValidationResult = result(new TokenReader(email))
-  def validate(tokenReader: Reader[Token]): ValidationResult = result(tokenReader)
+  def validate(email:String): Either[Failure,Success] = result(new TokenReader(email))
+  def validate(tokenReader: Reader[Token]): Either[Failure,Success] = result(tokenReader)
 
-  private def result(tokenReader: Reader[Token]) = {
+  private def result(tokenReader: Reader[Token]): Either[Failure, Success] = {
     val parsingResult = EmailParser.parse(tokenReader)
-    if (parsingResult.successful) Success()
-    else Failure(parsingResult.toString)
+    if (parsingResult.successful) Right(Success())
+    else Left(Failure(parsingResult.toString))
   }
 
 }

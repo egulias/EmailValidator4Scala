@@ -6,7 +6,7 @@ class EmailValidatorSpec extends FunSpec {
   describe("Validates emails") {
     it("should return success for a valid email") {
 
-      assert(EmailValidator.validate("example@example").isSuccess)
+      assert(EmailValidator.validate("example@example").isRight)
     }
 
     it("should return failure for an invalid email") {
@@ -39,9 +39,9 @@ class EmailValidatorSpec extends FunSpec {
             "example@[\r]",
             "exam\rple@example.co.uk")
 
-      val test = emails.map(email => (email, EmailValidator.validate(email).isFailure))
-
-      assert(test.exists(r => r._2), test.filter(r => !r._2))
+      for {
+        email <- emails
+      } yield assert(EmailValidator.validate(email).isLeft, email)
     }
   }
 }

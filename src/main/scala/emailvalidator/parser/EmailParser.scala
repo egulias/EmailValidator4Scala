@@ -9,9 +9,8 @@ import scala.util.parsing.combinator.Parsers
 object EmailParser extends Parsers {
   type Elem = Token
 
-  def local:Parser[Token] = {
-    localPartSize ~ (dquote | rep(atom ~> opt(DOT <~ atom )) <~ (comment | Parser{in=>Success(in.first, in)})) ~> AT
-  }
+  def local:Parser[Token] =
+    localPartSize ~ (dquote | rep1(atom ~> opt(DOT <~ atom )) <~ (comment | Parser{in=>Success(in.first, in)})) ~> AT
 
   private def localPartSize = Parser {in =>
     val sizeWithoutAt:Int = in.asInstanceOf[TokenReader].tokenizedSource.filter(t => !t.eq(AT)).map(t=>t.length).sum
@@ -31,7 +30,8 @@ object EmailParser extends Parsers {
 
   private def dquoteAtom:Parser[Token] = atom | COMMA | AT | SPACE | (BACKSLASH ~> DQUOTE) | BACKSLASH
 
-  def domain:Parser[Object] = phrase(domainPartSize ~ (literalDomain | (rep1(domainAtom) ~ rep(DOT ~> domainAtom))))
+  def domain:Parser[Object] = phrase(domainPartSize ~ (literalDomain | (domainUnit ~ rep(DOT ~> domainUnit))))
+  def domainUnit = rep1(domainAtom ~ opt(DASH~domainAtom))
 
   private def domainPartSize = Parser {in =>
     val sizeWithoutAt:Int = in.asInstanceOf[TokenReader].tokenizedSource.filter(t => !t.eq(AT)).map(t=>t.length).sum
@@ -78,7 +78,6 @@ object EmailParser extends Parsers {
 
   private def domainAtom = acceptIf {
     case _: GENERIC => true
-    case DASH => true
     case _ => false
   }(t => s"failed at $t")
 
