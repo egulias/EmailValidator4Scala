@@ -15,7 +15,7 @@ EmailValidator4Scala is available on [JCenter]!!!
 
 ```groovy
 dependencies {
-    compile 'com.egulias:emailvalidator4scala_2.11:0.4'
+    compile 'com.egulias:emailvalidator4scala_2.11:0.4.0'
 }
 ```
 
@@ -23,7 +23,7 @@ dependencies {
 <dependency>
   <groupId>com.egulias</groupId>
   <artifactId>emailvalidator4scala_2.11</artifactId>
-  <version>0.4</version>
+  <version>0.4.0</version>
   <type>pom</type>
 </dependency>
 ```
