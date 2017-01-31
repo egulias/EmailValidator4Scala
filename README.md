@@ -1,7 +1,7 @@
 # EmailValidator4Scala
 
-[![Build Status](https://travis-ci.org/egulias/EmailValidator4Scala.svg?branch=master)](https://travis-ci.org/egulias/EmailValidator4J)
-[![Download](https://api.bintray.com/packages/egulias/maven/EmailValidator4Scala/images/download.svg) ](https://bintray.com/egulias/maven/EmailValidator4Scala/_latestVersion)
+[![Build Status](https://travis-ci.org/egulias/EmailValidator4Scala.svg?branch=master)](https://travis-ci.org/egulias/EmailValidator4Scala)
+[![Download](https://api.bintray.com/packages/egulias/maven/emailvalidator4scala/images/download.svg) ](https://bintray.com/egulias/maven/emailvalidator4scala/_latestVersion)
 
 Simple RFC compliant EmailValidator for Scala.
 
@@ -15,21 +15,20 @@ EmailValidator4Scala is available on [JCenter]!!!
 
 ```groovy
 dependencies {
-    compile 'egulias:EmailValidator4Scala:0.7.0'
+    compile 'com.egulias:emailvalidator4scala_2.11:0.4'
 }
 ```
 
 ```xml
 <dependency>
-    <groupId>egulias</groupId>
-    <artifactId>EmailValidator4Scala</artifactId>
-    <version>0.7.0</version>
-    <type>jar</type>
-    <classifier>sources</classifier>
+  <groupId>com.egulias</groupId>
+  <artifactId>emailvalidator4scala_2.11</artifactId>
+  <version>0.4</version>
+  <type>pom</type>
 </dependency>
 ```
 
-[JCenter]: https://bintray.com/egulias/maven/EmailValidator4Scala
+[JCenter]: https://bintray.com/egulias/maven/emailvalidator4scala
 
 Getting Started
 ---------------
