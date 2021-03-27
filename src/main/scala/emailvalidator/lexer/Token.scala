@@ -32,7 +32,7 @@ object Token {
     ("\n",LF),
     ("\r\n",CRLF),
     ("IPv6",IPV6TAG),
-    ("\0",NUL)
+    ("\u0000",NUL)
   )
 
   def apply(value: String): Token =
@@ -73,4 +73,4 @@ case object CRLF extends Token { def value:String = "\r\n"}
 case object IPV6TAG extends Token { def value:String = "IPv6"}
 case object OPENCURLYBRACES extends Token { def value:String = "{"}
 case object CLOSECURLYBRACES extends Token { def value:String = "}"}
-case object NUL extends Token { def value:String = "\0"}
+case object NUL extends Token { def value:String = "\u0000"}
