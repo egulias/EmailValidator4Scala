@@ -17,7 +17,7 @@ import emailvalidator.lexer.INVALID
     sumAccumulator(ints, 0)
   } 
   */
-object EmailParser {
+object Parser {
     def parse (tokens: List[Token]): Either[Failure, Success] = {
         def parserAccumulator (tokens: List[Token], previous: Option[Token]): Either[Failure, Success] = {
           if (tokens.contains(INVALID)) Left(Failure("Invalid Tokens"))

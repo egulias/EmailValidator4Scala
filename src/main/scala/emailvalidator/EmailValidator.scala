@@ -1,7 +1,6 @@
 package emailvalidator
 
 import emailvalidator.lexer.{Token, TokenLexer}
-import emailvalidator.parser.EmailParser
 import emailvalidator.lexer.Tokenizer
 
 sealed trait ValidationResult {

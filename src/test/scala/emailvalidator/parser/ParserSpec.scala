@@ -7,6 +7,6 @@ import emailvalidator.Failure
 
 class ParserSpec extends AnyFunSuite {
     test("InvalidCharsNotAllowed") {
-        assert(Left(Failure("Invalid Tokens")) == EmailParser.parse(INVALID :: Nil))
+        assert(Left(Failure("Invalid Tokens")) == Parser.parse(INVALID :: Nil))
     }
 }
