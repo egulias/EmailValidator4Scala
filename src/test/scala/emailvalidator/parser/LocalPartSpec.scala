@@ -3,9 +3,7 @@ package emailvalidator.parser
 import org.scalatest.funsuite.AnyFunSuite
 import emailvalidator.Success
 import emailvalidator.Failure
-import emailvalidator.lexer.AT
-import emailvalidator.lexer.GENERIC
-import emailvalidator.lexer.SPACE
+import emailvalidator.lexer._
 
 class LocalPartSpec extends AnyFunSuite {
     test("parse a valid local part") {
@@ -13,6 +11,13 @@ class LocalPartSpec extends AnyFunSuite {
     }
 
     test("parse an invalid local part") {
-        assert(Left(Failure(s"Found [${SPACE.toString()}] ATEXT expected")) == LocalPart.parse(GENERIC("local") :: SPACE :: GENERIC("part") :: AT :: Nil, None))
+        val invalidLocalParts = List(
+            GENERIC("local") :: SPACE :: GENERIC("part") :: AT :: Nil,
+            GENERIC("local") :: DOT :: DOT :: GENERIC("part") :: AT :: Nil
+        )
+
+        for {
+            local <- invalidLocalParts
+        } yield assert(Left(Failure(s"Found [${SPACE.toString()}] ATEXT expected")) == LocalPart.parse(local, None), local)
     }
 }

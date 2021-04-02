@@ -2,9 +2,7 @@ package emailvalidator.parser
 
 import emailvalidator.Failure
 import emailvalidator.Success
-import emailvalidator.lexer.Token
-import emailvalidator.lexer.AT
-import emailvalidator.lexer.SPACE
+import emailvalidator.lexer._
 
 object LocalPart {
     def parse (tokens: List[Token], previous: Option[Token]): Either[Failure, Success] = {
@@ -13,6 +11,7 @@ object LocalPart {
                 case token :: rest => token match {
                     case token: AT.type => Right(Success())
                     case token: SPACE.type => Left(Failure(s"Found [${SPACE}] ATEXT expected"))
+                    case token: DOT.type if previous.getOrElse(NUL).isInstanceOf[DOT.type] => Left(Failure(s"Found [${DOT}] followed by [${DOT}]"))
                     case _ => parserAccumulator(rest, Option(token))
                 }
                 case Nil => Right(Success())
