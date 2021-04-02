@@ -12,6 +12,10 @@ class TokenizerSpec extends AnyFunSuite {
      assert(List(GENERIC("test")) == Tokenizer.tokenize("test"))
   }
 
+  test("should accept UTF8") {
+     assert(List(GENERIC("ñü", false)) == Tokenizer.tokenize("ñü"))
+  }
+
   test("should generate multiple types of tokens for a complex string") {
     val complexString = "A string with: Multiple\\ [t@kens]"
     val expected = List(
@@ -33,4 +37,10 @@ class TokenizerSpec extends AnyFunSuite {
     )
     assert(expected == Tokenizer.tokenize(complexString))
   }
+
+  test ("it has invalid tokens") {
+    val value = "€" 
+    assert(true == Tokenizer.tokenize(value).contains(INVALID))
+  }
+
 }

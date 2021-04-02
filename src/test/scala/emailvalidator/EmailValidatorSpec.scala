@@ -4,7 +4,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class EmailValidatorSpec extends AnyFunSuite {
   test("Validates emails") {
-      assert(EmailValidator.validate("example@example").isRight)
+      assert(EmailValidator.validate(Option("example@example")).isRight)
   }
   test("should return failure for an invalid email") {
     val emails = List(
@@ -38,6 +38,6 @@ class EmailValidatorSpec extends AnyFunSuite {
 
     for {
       email <- emails
-    } yield assert(EmailValidator.validate(email).isLeft, email)
+    } yield assert(EmailValidator.validate(Option(email)).isLeft, email)
   }
 }

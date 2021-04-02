@@ -1,9 +1,29 @@
 package emailvalidator.parser
 
-import emailvalidator.lexer._
+import emailvalidator.lexer.Token
+import emailvalidator.Success
+import emailvalidator.Failure
+import emailvalidator.lexer.INVALID
 
-import scala.annotation.tailrec
-import scala.collection.immutable.Nil
-
+/**
+  *  def sum2(ints: List[Int]): Int = {
+    @tailrec
+    def sumAccumulator(ints: List[Int], accum: Int): Int = {
+      ints match {
+        case Nil => accum
+        case x :: tail => sumAccumulator(tail, accum + x)
+      }
+    }
+    sumAccumulator(ints, 0)
+  } 
+  */
 object EmailParser {
+    def parse (tokens: List[Token]): Either[Failure, Success] = {
+        def parserAccumulator (tokens: List[Token], previous: Option[Token]): Either[Failure, Success] = {
+          if (tokens.contains(INVALID)) Left(Failure("Invalid Tokens"))
+          else Right(Success())
+        }
+
+        parserAccumulator(tokens, None)
+    }
 }

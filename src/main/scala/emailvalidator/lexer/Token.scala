@@ -35,9 +35,13 @@ object Token {
     ("\u0000",NUL)
   )
 
-  def apply(value: String): Token =
-    special.getOrElse(value, GENERIC(value, """^[\x20-\x7F]+$""".r.findAllIn(value).nonEmpty))
-
+  def apply(value: String): Token = special.contains(value) match {
+    case true => special.get(value).get
+    case _ => {
+        if("""(?ui)[\p{S}\p{C}\p{Cc}]+""".r.findAllIn(value).isEmpty) GENERIC (value, """^[\x20-\x7F]+$""".r.findAllIn(value).nonEmpty)
+        else INVALID
+    }
+  }
 }
 
 sealed case class GENERIC(value:String, override val isAscii: Boolean = true) extends Token {
@@ -74,3 +78,4 @@ case object IPV6TAG extends Token { def value:String = "IPv6"}
 case object OPENCURLYBRACES extends Token { def value:String = "{"}
 case object CLOSECURLYBRACES extends Token { def value:String = "}"}
 case object NUL extends Token { def value:String = "\u0000"}
+case object INVALID extends Token { def value:String = "Invalid Token"}

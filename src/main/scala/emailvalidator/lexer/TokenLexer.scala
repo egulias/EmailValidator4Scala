@@ -11,16 +11,19 @@ object Tokenizer {
   }
 }
 
-class TokenReader(val source: String, val offset: Int = 0) {
+class TokenLexer (val source: String, val offset: Int = 0) {
+
   val tokenizedSource: List[Token] = Tokenizer.tokenize(source)
+  val pos = offset
+  private val maxPos = tokenizedSource.length
 
   def first: Token = if(tokenizedSource.isEmpty) NUL else tokenizedSource.head
 
+  def next: Token = if (pos + 1 > tokenizedSource.length) NUL else tokenizedSource(pos + 1)
+
   def atEnd: Boolean = tokenizedSource.isEmpty
 
-  def pos: Int = 0
-
-  def rest = if(atEnd)this else new TokenReader(tokenizedSource.tail.map(_.value).mkString, offset+1)
+  def rest = if(atEnd)this else new TokenLexer(tokenizedSource.tail.map(_.value).mkString, offset+1)
 
   override def toString = s"starting at ${first.toString}"
 }

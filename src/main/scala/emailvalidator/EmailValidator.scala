@@ -1,7 +1,8 @@
 package emailvalidator
 
-import emailvalidator.lexer.{Token, TokenReader}
+import emailvalidator.lexer.{Token, TokenLexer}
 import emailvalidator.parser.EmailParser
+import emailvalidator.lexer.Tokenizer
 
 sealed trait ValidationResult {
   def warnings: Option[List[Warning]] = None
@@ -23,10 +24,8 @@ case class Failure(msg:String) extends ValidationResult {
 }
 
 object EmailValidator {
-  def validate(email:String): Either[Failure,Success] = result(new TokenReader(email))
-
-  private def result(tokenReader: TokenReader): Either[Failure, Success] = {
-    Right(Success())
+  def validate(email:Option[String]): Either[Failure,Success] = {
+    val tokens: List[Token] = Tokenizer.tokenize(email.getOrElse(""))
+    Left(Failure("test"))
   }
-
 }
