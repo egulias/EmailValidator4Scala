@@ -22,7 +22,7 @@ object LocalPart {
                     case token: BACKSLASH.type => rest.head match {
                         case GENERIC(_,_) => Left(Failure(s"Escaping ATOM"))
                         case SPACE | HTAB => Left(Failure(s"Scaping ${SPACE}"))
-                        case _ => Right(Success())
+                        case _ => parserAccumulator(rest, previous)
                         
                     }
                     case _ => parserAccumulator(rest, Option(token))
