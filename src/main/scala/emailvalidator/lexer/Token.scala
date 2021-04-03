@@ -35,7 +35,7 @@ object Token {
     ("\u0000",NUL)
   )
 
-  def apply(value: String): Token = special.contains(value) match {
+def apply(value: String): Token = special.contains(value) match {
     case true => special.get(value).get
     case _ => {
         if("""(?ui)[\p{S}\p{C}\p{Cc}]+""".r.findAllIn(value).isEmpty) GENERIC (value, """^[\x20-\x7F]+$""".r.findAllIn(value).nonEmpty)

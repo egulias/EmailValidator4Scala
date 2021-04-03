@@ -11,12 +11,39 @@ class LocalPartSpec extends AnyFunSuite {
     }
 
     test("parse an invalid local part") {
+        /**
+            ['example(example]example@example.co.uk'],
+            ['.example@localhost'],
+            ['ex\ample@localhost'],
+            ['user name@example.com'],
+            ['usern,ame@example.com'],
+            ['user[na]me@example.com'],
+            ['"""@iana.org'],
+            ['"\"@iana.org'],
+            ['"test"test@iana.org'],
+            ['"test""test"@iana.org'],
+            ['"test"."test"@iana.org'],
+            ['"test".test@iana.org'],
+            ['"test"' . chr(0) . '@iana.org'],
+            ['"test\"@iana.org'],
+            [chr(226) . '@iana.org'],
+            ['\r\ntest@iana.org'],
+            ['\r\n test@iana.org'],
+            ['\r\n \r\ntest@iana.org'],
+            ['\r\n \r\ntest@iana.org'],
+            ['\r\n \r\n test@iana.org'],
+            ['test;123@foobar.com'],
+            ['examp║le@symfony.com'],
+            ['0'],
+            [0],
+          */
         val invalidLocalParts = List[(List[Token], String)](
-            (GENERIC("local") :: SPACE :: GENERIC("part") :: AT :: Nil, s"Found [${SPACE.toString()}] ATEXT expected"),
-            (GENERIC("local") :: DOT :: DOT :: GENERIC("part") :: AT :: Nil, s"Found [${DOT.toString}] ATEXT expected")
+            (GENERIC("local") :: SPACE :: GENERIC("part") :: AT :: Nil, s"Found [${SPACE}] ATEXT expected"),
+            (GENERIC("local") :: DOT :: DOT :: GENERIC("part") :: AT :: Nil, s"Found [${DOT}] ATEXT expected"),
+            (GENERIC("localpart") :: DOT :: AT :: Nil, s"Found [${DOT}] near [${AT}]"),
+            (OPENPARENTHESIS :: GENERIC("localpart") :: AT :: Nil, s"Unclosed parethesis, found [(]"),
+            (DOT :: GENERIC("localpart") :: AT :: Nil, s"Found [${DOT}] at start"),
         )
-
-        //
         for {
             local <- invalidLocalParts
         } yield assert(Left(Failure(local._2)) == LocalPart.parse(local._1, None), local)
