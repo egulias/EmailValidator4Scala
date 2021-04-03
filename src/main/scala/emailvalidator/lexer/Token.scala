@@ -52,6 +52,7 @@ sealed case class GENERIC(value:String, override val isAscii: Boolean = true) ex
 sealed case class IPv4(value:String) extends Token
 sealed case class IPv6(value:String) extends Token
 
+//missing code and name
 case object AT extends Token {def value: String = "@"}
 case object DOT extends Token { def value:String = "."}
 case object OPENPARENTHESIS extends Token { def value:String = "("}

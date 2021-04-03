@@ -11,13 +11,14 @@ class LocalPartSpec extends AnyFunSuite {
     }
 
     test("parse an invalid local part") {
-        val invalidLocalParts = List(
-            GENERIC("local") :: SPACE :: GENERIC("part") :: AT :: Nil,
-            GENERIC("local") :: DOT :: DOT :: GENERIC("part") :: AT :: Nil
+        val invalidLocalParts = List[(List[Token], String)](
+            (GENERIC("local") :: SPACE :: GENERIC("part") :: AT :: Nil, s"Found [${SPACE.toString()}] ATEXT expected"),
+            (GENERIC("local") :: DOT :: DOT :: GENERIC("part") :: AT :: Nil, s"Found [${DOT.toString}] ATEXT expected")
         )
 
+        //
         for {
             local <- invalidLocalParts
-        } yield assert(Left(Failure(s"Found [${SPACE.toString()}] ATEXT expected")) == LocalPart.parse(local, None), local)
+        } yield assert(Left(Failure(local._2)) == LocalPart.parse(local._1, None), local)
     }
 }
