@@ -13,7 +13,6 @@ class LocalPartSpec extends AnyFunSuite {
     test("parse an invalid local part") {
         /**
             ['example(example]example@example.co.uk'],
-            ['.example@localhost'],
             ['ex\ample@localhost'],
             ['user name@example.com'],
             ['usern,ame@example.com'],
@@ -43,6 +42,7 @@ class LocalPartSpec extends AnyFunSuite {
             (GENERIC("localpart") :: DOT :: AT :: Nil, s"Found [${DOT}] near [${AT}]"),
             (OPENPARENTHESIS :: GENERIC("localpart") :: AT :: Nil, s"Unclosed parethesis, found [(]"),
             (DOT :: GENERIC("localpart") :: AT :: Nil, s"Found [${DOT}] at start"),
+            (GENERIC("local") :: BACKSLASH :: GENERIC("part") :: AT :: Nil, s"Escaping ATOM"),
         )
         for {
             local <- invalidLocalParts
