@@ -13,10 +13,6 @@ class LocalPartSpec extends AnyFunSuite {
     test("parse an invalid local part") {
         /**
             ['example(example]example@example.co.uk'],
-            ['ex\ample@localhost'],
-            ['user name@example.com'],
-            ['usern,ame@example.com'],
-            ['user[na]me@example.com'],
             ['"""@iana.org'],
             ['"\"@iana.org'],
             ['"test"test@iana.org'],
@@ -37,12 +33,15 @@ class LocalPartSpec extends AnyFunSuite {
             [0],
           */
         val invalidLocalParts = List[(List[Token], String)](
+            (DQUOTE :: DQUOTE :: DQUOTE :: AT :: Nil, s"Unclosed quoted string"),
+            (GENERIC("local") :: OPENBRACKET :: GENERIC("part") :: CLOSEBRACKET :: AT :: Nil, s"Found [${OPENBRACKET}] ATEXT expected"),
+            (GENERIC("local") :: COMMA :: GENERIC("part") :: AT :: Nil, s"Found [${COMMA}] ATEXT expected"),
             (GENERIC("local") :: SPACE :: GENERIC("part") :: AT :: Nil, s"Found [${SPACE}] ATEXT expected"),
             (GENERIC("local") :: DOT :: DOT :: GENERIC("part") :: AT :: Nil, s"Found [${DOT}] ATEXT expected"),
             (GENERIC("localpart") :: DOT :: AT :: Nil, s"Found [${DOT}] near [${AT}]"),
             (OPENPARENTHESIS :: GENERIC("localpart") :: AT :: Nil, s"Unclosed parethesis, found [(]"),
             (DOT :: GENERIC("localpart") :: AT :: Nil, s"Found [${DOT}] at start"),
-            (GENERIC("local") :: BACKSLASH :: GENERIC("part") :: AT :: Nil, s"Escaping ATOM"),
+            (GENERIC("local") :: BACKSLASH :: GENERIC("part") :: AT :: Nil, s"ATEXT found after FWS"),
         )
         for {
             local <- invalidLocalParts

@@ -20,7 +20,7 @@ object LocalPart {
                     case token: OPENPARENTHESIS.type => parseComments(token, rest, previous)
                     case _ if invalidTokens.contains(token) => Left(Failure(s"Found [${token}] ATEXT expected"))
                     case token: BACKSLASH.type => rest.head match {
-                        case GENERIC(_,_) => Left(Failure(s"Escaping ATOM"))
+                        case GENERIC(_,_) => Left(Failure(s"ATEXT found after FWS"))
                         case SPACE | HTAB => Left(Failure(s"Scaping ${SPACE}"))
                         case _ => parserAccumulator(rest, previous)
                         
