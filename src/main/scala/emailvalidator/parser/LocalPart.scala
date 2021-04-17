@@ -18,6 +18,7 @@ object LocalPart {
                     case token: DOT.type if previous.getOrElse(NUL).isInstanceOf[DOT.type] => Left(Failure(s"Found [${DOT}] ATEXT expected"))
                     case token: DOT.type if rest.head.isInstanceOf[AT.type] => Left(Failure(s"Found [$DOT] near [$AT]"))
                     case token: OPENPARENTHESIS.type => parseComments(token, rest, previous)
+                    case token: DQUOTE.type => parseQuottedString(token, rest, previous)
                     case _ if invalidTokens.contains(token) => Left(Failure(s"Found [${token}] ATEXT expected"))
                     case token: BACKSLASH.type => rest.head match {
                         case GENERIC(_,_) => Left(Failure(s"ATEXT found after FWS"))
@@ -35,7 +36,9 @@ object LocalPart {
 
     private def parseComments(current: Token, rest: List[Token], previous: Option[Token]): Either[Failure, Success] = {
         Left(Failure("Unclosed parethesis, found [(]"))
-
     }
   
+    private def parseQuottedString(current: Token, rest: List[Token], previous: Option[Token]): Either[Failure, Success] = {
+        Left(Failure("Unescapaed double quote, found [\"]"))
+    }
 }
