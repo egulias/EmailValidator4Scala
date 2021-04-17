@@ -12,13 +12,13 @@ object LocalPart {
         def parserAccumulator (tokens: List[Token], previous: Option[Token]): Either[Failure, Success] = {
             tokens match {
                 case token :: rest => token match {
-                    case token: AT.type => Right(Success())
-                    case token: SPACE.type => Left(Failure(s"Found [${SPACE}] ATEXT expected"))
-                    case token: DOT.type if !previous.isDefined => Left(Failure(s"Found [${DOT}] at start"))
-                    case token: DOT.type if previous.getOrElse(NUL).isInstanceOf[DOT.type] => Left(Failure(s"Found [${DOT}] ATEXT expected"))
-                    case token: DOT.type if rest.head.isInstanceOf[AT.type] => Left(Failure(s"Found [$DOT] near [$AT]"))
-                    case token: OPENPARENTHESIS.type => parseComments(token, rest, previous)
-                    case token: DQUOTE.type => parseQuottedString(token, rest, previous)
+                    case AT => Right(Success())
+                    case SPACE => Left(Failure(s"Found [${SPACE}] ATEXT expected"))
+                    case DOT if !previous.isDefined => Left(Failure(s"Found [${DOT}] at start"))
+                    case DOT if previous.getOrElse(NUL).isInstanceOf[DOT.type] => Left(Failure(s"Found [${DOT}] ATEXT expected"))
+                    case DOT if rest.head.isInstanceOf[AT.type] => Left(Failure(s"Found [$DOT] near [$AT]"))
+                    case OPENPARENTHESIS => parseComments(token, rest, previous)
+                    case DQUOTE => parseQuotedString(token, rest, previous)
                     case _ if invalidTokens.contains(token) => Left(Failure(s"Found [${token}] ATEXT expected"))
                     case token: BACKSLASH.type => rest.head match {
                         case GENERIC(_,_) => Left(Failure(s"ATEXT found after FWS"))
@@ -38,7 +38,17 @@ object LocalPart {
         Left(Failure("Unclosed parethesis, found [(]"))
     }
   
-    private def parseQuottedString(current: Token, rest: List[Token], previous: Option[Token]): Either[Failure, Success] = {
-        Left(Failure("Unescapaed double quote, found [\"]"))
+    private def parseQuotedString(current: Token, rest: List[Token], previous: Option[Token]): Either[Failure, Success] = {
+        rest match {
+            case  qsToken :: following => qsToken match {
+                case DQUOTE => following.head match {
+                    case AT => Right(Success())
+                    case _ => Left(Failure("Unescapaed double quote, found [\"]"))
+                }
+                case BACKSLASH => parseQuotedString(following.drop(1).head, following.drop(1), Option(following.head))
+                case _ => parseQuotedString(following.head, following, Option(qsToken))
+            }
+            case Nil => Left(Failure("Unclosed quoted string"))
+        }
     }
 }

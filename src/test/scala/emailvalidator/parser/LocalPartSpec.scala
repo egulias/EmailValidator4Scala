@@ -13,7 +13,6 @@ class LocalPartSpec extends AnyFunSuite {
     test("parse an invalid local part") {
         /**
             ['example(example]example@example.co.uk'],
-            ['"""@iana.org'],
             ['"\"@iana.org'],
             ['"test"test@iana.org'],
             ['"test""test"@iana.org'],
@@ -33,6 +32,7 @@ class LocalPartSpec extends AnyFunSuite {
             [0],
           */
         val invalidLocalParts = List[(List[Token], String)](
+            (DQUOTE :: BACKSLASH :: DQUOTE :: AT :: Nil, "Unclosed quoted string"),
             (DQUOTE :: DQUOTE :: DQUOTE :: AT :: Nil, "Unescapaed double quote, found [\"]"),
             (GENERIC("local") :: OPENBRACKET :: GENERIC("part") :: CLOSEBRACKET :: AT :: Nil, s"Found [${OPENBRACKET}] ATEXT expected"),
             (GENERIC("local") :: COMMA :: GENERIC("part") :: AT :: Nil, s"Found [${COMMA}] ATEXT expected"),
