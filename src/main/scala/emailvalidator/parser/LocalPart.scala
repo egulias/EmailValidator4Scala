@@ -46,7 +46,9 @@ object LocalPart {
                     case _ => Left(Failure("Unescapaed double quote, found [\"]"))
                 }
                 case BACKSLASH => parseQuotedString(following.drop(1).head, following.drop(1), Option(following.head))
-                case _ => parseQuotedString(following.head, following, Option(qsToken))
+                case Nil => Left(Failure("Missing closing DQUOTE. Quotes string should be a unit"))
+                case _ => if (following.isEmpty) Left(Failure("Missing closing DQUOTE. Quotes string should be a unit"))
+                    else  parseQuotedString(following.head, following, Option(qsToken))
             }
             case Nil => Left(Failure("Unclosed quoted string"))
         }

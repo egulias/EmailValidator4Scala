@@ -32,7 +32,7 @@ class LocalPartSpec extends AnyFunSuite {
             [0],
           */
         val invalidLocalParts = List[(List[Token], String)](
-            (DQUOTE :: BACKSLASH :: DQUOTE :: AT :: Nil, "Unclosed quoted string"),
+            (DQUOTE :: BACKSLASH :: DQUOTE :: AT :: Nil, "Missing closing DQUOTE. Quotes string should be a unit"),
             (DQUOTE :: DQUOTE :: DQUOTE :: AT :: Nil, "Unescapaed double quote, found [\"]"),
             (GENERIC("local") :: OPENBRACKET :: GENERIC("part") :: CLOSEBRACKET :: AT :: Nil, s"Found [${OPENBRACKET}] ATEXT expected"),
             (GENERIC("local") :: COMMA :: GENERIC("part") :: AT :: Nil, s"Found [${COMMA}] ATEXT expected"),
