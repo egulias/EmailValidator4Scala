@@ -43,9 +43,12 @@ object LocalPart {
             case  qsToken :: following => qsToken match {
                 case DQUOTE => following.head match {
                     case AT => Right(Success())
-                    case _ => Left(Failure("Unescapaed double quote, found [\"]"))
+                    case GENERIC(_,_) if (following.drop(1).head == AT ) => Left(Failure(s"ATEXT found, ${AT} expected")) 
+                    case DQUOTE if !previous.getOrElse(None).isInstanceOf[BACKSLASH.type] =>  Left(Failure(s"Unescaped double quote, expected ${BACKSLASH}")) 
+                    case DQUOTE => parseQuotedString(qsToken, following, previous)
+                    case _ => Left(Failure("Unclosed quoted string1"))
                 }
-                case BACKSLASH => parseQuotedString(following.drop(1).head, following.drop(1), Option(following.head))
+                case BACKSLASH => parseQuotedString(following.head, following.drop(1), Option(following.head))
                 case Nil => Left(Failure("Missing closing DQUOTE. Quotes string should be a unit"))
                 case _ => if (following.isEmpty) Left(Failure("Missing closing DQUOTE. Quotes string should be a unit"))
                     else  parseQuotedString(following.head, following, Option(qsToken))
