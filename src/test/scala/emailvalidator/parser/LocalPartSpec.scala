@@ -12,14 +12,6 @@ class LocalPartSpec extends AnyFunSuite {
 
     test("parse an invalid local part") {
         /**
-            ['example(example]example@example.co.uk'],
-            ['"test"test@iana.org'],
-            ['"test""test"@iana.org'],
-            ['"test"."test"@iana.org'],
-            ['"test".test@iana.org'],
-            ['"test"' . chr(0) . '@iana.org'],
-            ['"test\"@iana.org'],
-            [chr(226) . '@iana.org'],
             ['\r\ntest@iana.org'],
             ['\r\n test@iana.org'],
             ['\r\n \r\ntest@iana.org'],
@@ -31,6 +23,15 @@ class LocalPartSpec extends AnyFunSuite {
             [0],
           */
         val invalidLocalParts = List[(List[Token], String)](
+            (LF :: Nil, "Empty FWS"),
+            (DQUOTE :: GENERIC("local") :: BACKSLASH :: DQUOTE :: AT :: Nil, "Missing closing DQUOTE. Quotes string should be a unit"),
+            (DQUOTE :: GENERIC("local") :: DQUOTE :: GENERIC("\u0000") :: AT :: Nil, s"ATEXT found, ${AT} expected"),
+            (DQUOTE :: GENERIC("local") :: DQUOTE :: DOT :: DQUOTE :: GENERIC("local") :: DQUOTE:: AT :: Nil,
+                "Unclosed quoted string"),
+            (DQUOTE :: GENERIC("local") :: DQUOTE :: DQUOTE :: GENERIC("local") :: DQUOTE:: AT :: Nil,
+                s"Unescaped double quote, expected ${BACKSLASH}"),
+            (GENERIC("test") :: OPENPARENTHESIS :: GENERIC("test") :: CLOSEBRACKET :: GENERIC("test") :: AT :: Nil,
+                s"Unclosed parethesis, found [(]"),
             (DQUOTE :: GENERIC("local") :: DQUOTE :: GENERIC("test") :: AT :: Nil, s"ATEXT found, ${AT} expected"),
             (DQUOTE :: BACKSLASH :: DQUOTE :: AT :: Nil, "Missing closing DQUOTE. Quotes string should be a unit"),
             (DQUOTE :: DQUOTE :: DQUOTE :: AT :: Nil, s"Unescaped double quote, expected ${BACKSLASH}"),

@@ -20,18 +20,24 @@ object LocalPart {
                     case OPENPARENTHESIS => parseComments(token, rest, previous)
                     case DQUOTE => parseQuotedString(token, rest, previous)
                     case _ if invalidTokens.contains(token) => Left(Failure(s"Found [${token}] ATEXT expected"))
-                    case token: BACKSLASH.type => rest.head match {
+                    case BACKSLASH => rest.head match {
                         case GENERIC(_,_) => Left(Failure(s"ATEXT found after FWS"))
                         case SPACE | HTAB => Left(Failure(s"Scaping ${SPACE}"))
                         case _ => parserAccumulator(rest, previous)
                         
                     }
+                    case SPACE | HTAB | CR | LF | CRLF => parseFWS(token, rest, previous)
                     case _ => parserAccumulator(rest, Option(token))
                 }
                 case Nil => Right(Success())
             }
         }
         parserAccumulator(tokens, None)
+    }
+
+    private def parseFWS(current: Token, rest: List[Token], previous: Option[Token]): Either[Failure, Success] = {
+        if (previous.getOrElse(None) == None) Left(Failure("Empty FWS"))
+        else Right(Success())
     }
 
     private def parseComments(current: Token, rest: List[Token], previous: Option[Token]): Either[Failure, Success] = {
@@ -46,7 +52,7 @@ object LocalPart {
                     case GENERIC(_,_) if (following.drop(1).head == AT ) => Left(Failure(s"ATEXT found, ${AT} expected")) 
                     case DQUOTE if !previous.getOrElse(None).isInstanceOf[BACKSLASH.type] =>  Left(Failure(s"Unescaped double quote, expected ${BACKSLASH}")) 
                     case DQUOTE => parseQuotedString(qsToken, following, previous)
-                    case _ => Left(Failure("Unclosed quoted string1"))
+                    case _ => Left(Failure("Unclosed quoted string")) //review error message
                 }
                 case BACKSLASH => parseQuotedString(following.head, following.drop(1), Option(following.head))
                 case Nil => Left(Failure("Missing closing DQUOTE. Quotes string should be a unit"))
