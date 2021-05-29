@@ -11,19 +11,13 @@ class LocalPartSpec extends AnyFunSuite {
     }
 
     test("parse an invalid local part") {
-        /**
-            ['\r\ntest@iana.org'],
-            ['\r\n test@iana.org'],
-            ['\r\n \r\ntest@iana.org'],
-            ['\r\n \r\ntest@iana.org'],
-            ['\r\n \r\n test@iana.org'],
-            ['test;123@foobar.com'],
-            ['examp║le@symfony.com'],
-            ['0'],
-            [0],
-          */
         val invalidLocalParts = List[(List[Token], String)](
-            (LF :: Nil, "Empty FWS"),
+            (GENERIC("test") :: INVALID :: GENERIC("test") :: AT :: Nil, s"Found [${INVALID}] ATEXT expected"),
+            (GENERIC("test") :: SEMICOLON :: GENERIC("123") :: AT :: Nil, s"Found [${SEMICOLON}] ATEXT expected"),
+            (CR :: LF :: SPACE :: CR :: LF :: SPACE :: GENERIC("test") :: AT :: Nil, "Empty FWS"),
+            (CR :: LF :: SPACE :: GENERIC("test") :: AT :: Nil, "Empty FWS"),
+            (CR :: LF :: AT :: Nil, "Empty FWS"),
+            (LF :: AT :: Nil, "Empty FWS"),
             (DQUOTE :: GENERIC("local") :: BACKSLASH :: DQUOTE :: AT :: Nil, "Missing closing DQUOTE. Quotes string should be a unit"),
             (DQUOTE :: GENERIC("local") :: DQUOTE :: GENERIC("\u0000") :: AT :: Nil, s"ATEXT found, ${AT} expected"),
             (DQUOTE :: GENERIC("local") :: DQUOTE :: DOT :: DQUOTE :: GENERIC("local") :: DQUOTE:: AT :: Nil,

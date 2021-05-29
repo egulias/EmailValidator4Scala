@@ -40,6 +40,7 @@ class TokenizerSpec extends AnyFunSuite {
 
   test ("it has invalid tokens") {
     val value = "€" 
+    // ['examp║le@symfony.com'],
     assert(true == Tokenizer.tokenize(value).contains(INVALID))
   }
 
