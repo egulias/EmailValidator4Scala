@@ -12,6 +12,8 @@ object DomainPart {
             tokens match {
                 case token :: rest => token match {
                     case AT => Left(Failure("Double AT"))
+                    case OPENPARENTHESIS => parseComments(token, rest, previous)
+                    case OPENBRACKET => parseDomainLiteral(token, rest, previous)
                     case DOT if !previous.getOrElse(None).isInstanceOf[GENERIC] => Left(Failure(s"${previous.getOrElse(None)} near {$DOT}"))
                     case _ => parserAccumulator(rest, Option(token))
                 }
@@ -20,5 +22,13 @@ object DomainPart {
             }
         }
         parserAccumulator(tokens, None)
+    }
+
+    private def parseComments(current: Token, rest: List[Token], previous: Option[Token]): Either[Failure, Success] = {
+        Right(Success())
+    }
+
+    private def parseDomainLiteral(current: Token, rest: List[Token], previous: Option[Token]): Either[Failure, Success] = {
+        Right(Success())
     }
 }

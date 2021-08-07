@@ -12,22 +12,18 @@ class DomainPartSpec extends AnyFunSuite {
         assert(Right(Success()) == DomainPart.parse(GENERIC("example") :: DOT :: GENERIC("com") :: Nil, None))
         assert(Right(Success()) == DomainPart.parse(GENERIC("example") :: DOT :: GENERIC("co") :: DOT :: GENERIC("uk") ::Nil, None))
         assert(Right(Success()) == DomainPart.parse(GENERIC("example") :: Nil, None))
-        //IPv4 & IPv6 examples
-//                    ['fabien@symfony.com'],
-//            ['example@example.co.uk'],
-//            ['example@localhost'],
-//            ['example@faked(fake).co.uk'],
-//            ['инфо@письмо.рф'],
-//            ['müller@möller.de'],
-//            ["1500111@профи-инвест.рф"],
-//            ['validipv6@[IPv6:2001:db8:1ff::a0b:dbd0]'],
-//            ['validipv4@[127.0.0.0]'],
-//            ['validipv4@127.0.0.0'],
-//            ['withhyphen@domain-exam.com'],
-
+        assert(Right(Success()) == DomainPart.parse(GENERIC("письмо", false) :: DOT :: GENERIC("рф", false) :: Nil, None))
+        assert(Right(Success()) == DomainPart.parse(GENERIC("müller", false) :: DOT :: GENERIC("de") :: Nil, None))
+        assert(Right(Success()) == DomainPart.parse(GENERIC("профи", false) :: DASH :: GENERIC("инвест", false) :: DOT :: GENERIC("рф", false) :: Nil, None))
+        assert(Right(Success()) == DomainPart.parse(GENERIC("example") :: DASH :: GENERIC("domain") :: DOT :: GENERIC("com") :: Nil, None))
+        assert(Right(Success()) == DomainPart.parse(GENERIC("example") :: OPENPARENTHESIS :: GENERIC("comment") :: CLOSEPARENTHESIS :: DOT :: GENERIC("com") :: Nil, None))
+        assert(Right(Success()) == DomainPart.parse(OPENBRACKET :: IPV6TAG :: COLON :: GENERIC("2001") :: COLON :: GENERIC("db8a") :: COLON :: GENERIC("fdde") 
+            :: COLON :: GENERIC("2001") :: COLON :: GENERIC("cba1") :: COLON :: GENERIC("dad4") :: CLOSEBRACKET :: Nil, None))
+        assert(Right(Success()) == DomainPart.parse(OPENBRACKET :: GENERIC("127") :: DOT :: GENERIC("0") :: DOT :: GENERIC("0") :: DOT :: GENERIC("0") :: CLOSEBRACKET :: Nil, None))
+        assert(Right(Success()) == DomainPart.parse(GENERIC("127") :: DOT :: GENERIC("0") :: DOT :: GENERIC("0") :: DOT :: GENERIC("0") :: Nil, None))
     }
 
-    test("parse an invalid local part") {
+    test("parse an invalid domain part") {
   //        "example@example..co.uk",
   //        "<example_example>@example.fr",
   //        "example@.localhost",

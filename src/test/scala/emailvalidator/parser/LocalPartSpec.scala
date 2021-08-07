@@ -6,7 +6,36 @@ import emailvalidator.Failure
 import emailvalidator.lexer._
 
 class LocalPartSpec extends AnyFunSuite {
-    test("parse a valid local part") {
+   test("parse a valid local part")  {
+//            ['example@faked(fake).co.uk'],
+//            ['инфо@письмо.рф'],
+//            ['müller@möller.de'],
+//            ["1500111@профи-инвест.рф"],
+/**
+  *         return array(
+            ['â@iana.org'],
+            ['fabien@symfony.com'],
+            ['example@example.co.uk'],
+            ['fabien_potencier@example.fr'],
+            ['fab\'ien@symfony.com'],
+            ['fab\ ien@symfony.com'],
+            ['example((example))@fakedfake.co.uk'],
+            ['fabien+a@symfony.com'],
+            ['exampl=e@example.com'],
+            ['инфо@письмо.рф'],
+            ['"username"@example.com'],
+            ['"user,name"@example.com'],
+            ['"user name"@example.com'],
+            ['"user@name"@example.com'],
+            ['"user\"name"@example.com'],
+            ['"\a"@iana.org'],
+            ['"test\ test"@iana.org'],
+            ['""@iana.org'],
+            ['"\""@iana.org'],
+            ['müller@möller.de'],
+            ["1500111@профи-инвест.рф"],
+            [sprintf('example@%s.com', str_repeat('ъ', 40))],
+  */
         assert(Right(Success()) == LocalPart.parse(GENERIC("localpart") :: AT :: Nil, None))
     }
 
