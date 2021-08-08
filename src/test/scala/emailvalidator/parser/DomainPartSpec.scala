@@ -24,7 +24,6 @@ class DomainPartSpec extends AnyFunSuite {
     }
 
     test("parse an invalid domain part") {
-  //        "example@localhost.",
   //        """"example@localhost""",
   //        "example@comment)localhost",
   //        "example@localhost(comment))",

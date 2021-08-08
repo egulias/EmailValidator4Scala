@@ -14,9 +14,11 @@ object DomainPart {
                     case AT => Left(Failure("Double AT"))
                     case OPENPARENTHESIS => parseComments(token, rest, previous)
                     case OPENBRACKET => parseDomainLiteral(token, rest, previous)
-                    case DOT if previous.isEmpty => Left(Failure(s"${DOT} near ${AT}"))
-                    case DOT if !previous.getOrElse(None).isInstanceOf[GENERIC] => Left(Failure(s"${previous.getOrElse(None)} near ${DOT}"))
-                    case DOT if rest.size == 0 => Left(Failure(s"${DOT} at the end"))
+                    case DOT => 
+                        if (previous.isEmpty) Left(Failure(s"${DOT} near ${AT}"))
+                        else if (!previous.getOrElse(None).isInstanceOf[GENERIC]) Left(Failure(s"${previous.getOrElse(None)} near ${DOT}"))
+                        else if (rest.size == 0) Left(Failure(s"${DOT} at the end"))
+                        else parserAccumulator(rest, Option(token))
                     case _ => parserAccumulator(rest, Option(token))
                 }
                 case Nil if !previous.getOrElse(None).isInstanceOf[GENERIC] => Left(Failure(s"${previous.getOrElse(None)} at the end"))
