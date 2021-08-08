@@ -24,9 +24,6 @@ class DomainPartSpec extends AnyFunSuite {
     }
 
     test("parse an invalid domain part") {
-  //        "example@example..co.uk",
-  //        "<example_example>@example.fr",
-  //        "example@.localhost",
   //        "example@localhost.",
   //        """"example@localhost""",
   //        "example@comment)localhost",
@@ -97,10 +94,12 @@ class DomainPartSpec extends AnyFunSuite {
             ['test@email£a.com'],
   */
         val invalidLocalParts = List[(List[Token], String)](
-            (GENERIC("example") :: DOT :: DOT :: GENERIC("com") :: Nil, s"${DOT} near {$DOT}"),
+            (GENERIC("example") :: DOT :: DOT :: GENERIC("com") :: Nil, s"${DOT} near ${DOT}"),
             (AT :: GENERIC("example") :: Nil, s"Double AT"),
             (GENERIC("example") :: DASH :: Nil, s"${DASH} at the end"),
-            (GENERIC("example") :: DASH :: DOT :: GENERIC("com") :: Nil, s"${DASH} near {$DOT}")
+            (GENERIC("example") :: DASH :: DOT :: GENERIC("com") :: Nil, s"${DASH} near ${DOT}"),
+            (DOT :: GENERIC("example") :: DOT :: GENERIC("com") :: Nil, s"${DOT} near ${AT}"),
+            (GENERIC("example") :: DOT :: Nil, s"${DOT} at the end")
         )
 
         for {
