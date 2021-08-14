@@ -12,7 +12,7 @@ object DomainPart {
             tokens match {
                 case token :: rest => token match {
                     case AT => Left(Failure("Double AT"))
-                    case OPENPARENTHESIS => parseComments(token, rest, previous)
+                    case OPENPARENTHESIS | CLOSEPARENTHESIS => parseComments(token, rest, previous)
                     case OPENBRACKET => parseDomainLiteral(token, rest, previous)
                     case DQUOTE => Left(Failure(s"Invalid character ${DQUOTE}")) 
                     case DOT => 
@@ -30,7 +30,19 @@ object DomainPart {
     }
 
     private def parseComments(current: Token, rest: List[Token], previous: Option[Token]): Either[Failure, Success] = {
-        Right(Success())
+        def countP (tokens: List[Token], counter: Int) : Either[Failure, Success] = {
+            tokens match {
+                case token :: rest => token match {
+                    case CLOSEPARENTHESIS => countP(rest, counter - 1)
+                    case OPENPARENTHESIS => countP(rest, counter + 1)
+                    case _ => countP(rest, counter)
+                }
+                
+                case Nil => if (counter == 0) Right(Success(None)) else Left(Failure("Unclosed comment"))
+            }
+        }
+        if (current == OPENPARENTHESIS) countP(rest, 1)
+        else  countP(rest, -1)
     }
 
     private def parseDomainLiteral(current: Token, rest: List[Token], previous: Option[Token]): Either[Failure, Success] = {
