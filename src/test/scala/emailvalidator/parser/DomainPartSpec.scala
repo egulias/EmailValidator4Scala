@@ -98,7 +98,8 @@ class DomainPartSpec extends AnyFunSuite {
             (GENERIC("example") :: DASH :: Nil, s"${DASH} at the end"),
             (GENERIC("example") :: DASH :: DOT :: GENERIC("com") :: Nil, s"${DASH} near ${DOT}"),
             (DOT :: GENERIC("example") :: DOT :: GENERIC("com") :: Nil, s"${DOT} near ${AT}"),
-            (GENERIC("example") :: DOT :: Nil, s"${DOT} at the end")
+            (GENERIC("example") :: DOT :: Nil, s"${DOT} at the end"),
+            (DQUOTE :: DQUOTE :: DQUOTE :: GENERIC("example") :: DOT :: GENERIC("com") :: DQUOTE :: DQUOTE :: Nil, s"Unclosed ${DQUOTE}")
         )
 
         for {
