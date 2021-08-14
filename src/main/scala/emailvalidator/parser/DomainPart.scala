@@ -14,7 +14,7 @@ object DomainPart {
                     case AT => Left(Failure("Double AT"))
                     case OPENPARENTHESIS => parseComments(token, rest, previous)
                     case OPENBRACKET => parseDomainLiteral(token, rest, previous)
-                    case DQUOTE => parseQuotedString(token, rest, previous)
+                    case DQUOTE => Left(Failure(s"Invalid character ${DQUOTE}")) 
                     case DOT => 
                         if (previous.isEmpty) Left(Failure(s"${DOT} near ${AT}"))
                         else if (!previous.getOrElse(None).isInstanceOf[GENERIC]) Left(Failure(s"${previous.getOrElse(None)} near ${DOT}"))
@@ -35,9 +35,5 @@ object DomainPart {
 
     private def parseDomainLiteral(current: Token, rest: List[Token], previous: Option[Token]): Either[Failure, Success] = {
         Right(Success())
-    }
-
-    private def parseQuotedString(current: Token, rest: List[Token], previous: Option[Token]): Either[Failure, Success] = {
-        Left(Failure(s"Unclosed ${DQUOTE}"))
     }
 }

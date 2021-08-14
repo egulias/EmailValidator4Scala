@@ -24,7 +24,6 @@ class DomainPartSpec extends AnyFunSuite {
     }
 
     test("parse an invalid domain part") {
-  //        """"example@localhost""",
   //        "example@comment)localhost",
   //        "example@localhost(comment))",
   //        "example@(comment))example.com",
@@ -99,7 +98,7 @@ class DomainPartSpec extends AnyFunSuite {
             (GENERIC("example") :: DASH :: DOT :: GENERIC("com") :: Nil, s"${DASH} near ${DOT}"),
             (DOT :: GENERIC("example") :: DOT :: GENERIC("com") :: Nil, s"${DOT} near ${AT}"),
             (GENERIC("example") :: DOT :: Nil, s"${DOT} at the end"),
-            (DQUOTE :: DQUOTE :: DQUOTE :: GENERIC("example") :: DOT :: GENERIC("com") :: DQUOTE :: DQUOTE :: Nil, s"Unclosed ${DQUOTE}")
+            (DQUOTE :: DQUOTE :: DQUOTE :: GENERIC("example") :: DOT :: GENERIC("com") :: DQUOTE :: DQUOTE :: Nil, s"Invalid character ${DQUOTE}")
         )
 
         for {
