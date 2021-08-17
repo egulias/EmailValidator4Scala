@@ -13,7 +13,7 @@ object DomainPart {
                 case token :: rest => token match {
                     case AT => Left(Failure("Double AT"))
                     case OPENPARENTHESIS | CLOSEPARENTHESIS => parseComments(token, rest, previous)
-                    case OPENBRACKET => parseDomainLiteral(token, rest, previous)
+                    case OPENBRACKET | CLOSEBRACKET => parseDomainLiteral(token, rest, previous)
                     case DQUOTE => Left(Failure(s"Invalid character ${DQUOTE}")) 
                     case DOT => 
                         if (previous.isEmpty) Left(Failure(s"${DOT} near ${AT}"))
@@ -30,22 +30,34 @@ object DomainPart {
     }
 
     private def parseComments(current: Token, rest: List[Token], previous: Option[Token]): Either[Failure, Success] = {
-        def countP (tokens: List[Token], counter: Int) : Either[Failure, Success] = {
+        def count (tokens: List[Token], counter: Int) : Either[Failure, Success] = {
             tokens match {
                 case token :: rest => token match {
-                    case CLOSEPARENTHESIS => countP(rest, counter - 1)
-                    case OPENPARENTHESIS => countP(rest, counter + 1)
-                    case _ => countP(rest, counter)
+                    case CLOSEPARENTHESIS => count(rest, counter - 1)
+                    case OPENPARENTHESIS => count(rest, counter + 1)
+                    case _ => count(rest, counter)
                 }
                 
                 case Nil => if (counter == 0) Right(Success(None)) else Left(Failure("Unclosed comment"))
             }
         }
-        if (current == OPENPARENTHESIS) countP(rest, 1)
-        else  countP(rest, -1)
+        if (current == OPENPARENTHESIS) count(rest, 1)
+        else  count(rest, -1)
     }
 
     private def parseDomainLiteral(current: Token, rest: List[Token], previous: Option[Token]): Either[Failure, Success] = {
-        Right(Success())
+        def count (tokens: List[Token], counter: Int) : Either[Failure, Success] = {
+            tokens match {
+                case token :: rest => token match {
+                    case CLOSEBRACKET => count(rest, counter - 1)
+                    case OPENBRACKET => count(rest, counter + 1)
+                    case _ => count(rest, counter)
+                }
+                
+                case Nil => if (counter == 0) Right(Success(None)) else Left(Failure("Expecting DTEXT"))
+            }
+        }
+        if (current == OPENBRACKET) count(rest, 1)
+        else  count(rest, -1)
     }
 }
