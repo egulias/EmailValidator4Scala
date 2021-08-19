@@ -9,7 +9,7 @@ sealed trait Token {
 }
 
 object Token {
-  val special:Map[String, Token] = HashMap[String, Token](
+  private val special:Map[String, Token] = HashMap[String, Token](
     ("@",AT),
     ("(",OPENPARENTHESIS),
     (")",CLOSEPARENTHESIS),
@@ -25,7 +25,7 @@ object Token {
     (".",DOT),
     ("\"",DQUOTE),
     ("'",QUOTE),
-    ("-",DASH),
+    ("-",HYPHEN),
     (" ",SPACE),
     ("\t",HTAB),
     ("\r",CR),
@@ -35,7 +35,7 @@ object Token {
     ("\u0000",NUL)
   )
 
-def apply(value: String): Token = special.contains(value) match {
+  def apply(value: String): Token = special.contains(value) match {
     case true => special.get(value).get
     case _ => {
         if("""(?ui)[\p{S}\p{C}\p{Cc}]+""".r.findAllIn(value).isEmpty) GENERIC (value, """^[\x20-\x7F]+$""".r.findAllIn(value).nonEmpty)
@@ -68,7 +68,7 @@ case object SLASH extends Token { def value:String = "/"}
 case object COMMA extends Token { def value:String = ","}
 case object DQUOTE extends Token { def value:String = "\""}
 case object QUOTE extends Token { def value:String = "'"}
-case object DASH extends Token { def value:String = "-"}
+case object HYPHEN extends Token { def value:String = "-"}
 case object DOUBLECOLON extends Token { def value:String = "::"}
 case object SPACE extends Token { def value:String = " "}
 case object HTAB extends Token { def value:String = "\t"}

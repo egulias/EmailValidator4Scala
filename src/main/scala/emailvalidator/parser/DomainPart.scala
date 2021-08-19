@@ -6,7 +6,11 @@ import emailvalidator.Success
 import emailvalidator.lexer._
 
 object DomainPart {
-  
+    private def allowedToken(token: Token): Boolean = token match {
+        case GENERIC(_,_) | HYPHEN | DOT => true
+        case _ => false
+    }
+
     def parse (tokens: List[Token], previous: Option[Token]): Either[Failure, Success] = {
         def parserAccumulator (tokens: List[Token], previous: Option[Token]): Either[Failure, Success] = {
             tokens match {
@@ -20,7 +24,7 @@ object DomainPart {
                         else if (!previous.getOrElse(None).isInstanceOf[GENERIC]) Left(Failure(s"${previous.getOrElse(None)} near ${DOT}"))
                         else if (rest.size == 0) Left(Failure(s"${DOT} at the end"))
                         else parserAccumulator(rest, Option(token))
-                    case _ => parserAccumulator(rest, Option(token))
+                    case _ => if (allowedToken(token)) parserAccumulator(rest, Option(token)) else Left(Failure(s"Invalid character in domain ${token}"))
                 }
                 case Nil if !previous.getOrElse(None).isInstanceOf[GENERIC] => Left(Failure(s"${previous.getOrElse(None)} at the end"))
                 case Nil => Right(Success(None))

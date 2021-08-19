@@ -1,8 +1,6 @@
 package emailvalidator.parser
 
 import org.scalatest.funsuite.AnyFunSuite
-import emailvalidator.lexer.GENERIC
-import emailvalidator.lexer.DOT
 import emailvalidator.Success
 import emailvalidator.Failure
 import emailvalidator.lexer._
@@ -14,8 +12,8 @@ class DomainPartSpec extends AnyFunSuite {
         assert(Right(Success()) == DomainPart.parse(GENERIC("example") :: Nil, None))
         assert(Right(Success()) == DomainPart.parse(GENERIC("письмо", false) :: DOT :: GENERIC("рф", false) :: Nil, None))
         assert(Right(Success()) == DomainPart.parse(GENERIC("müller", false) :: DOT :: GENERIC("de") :: Nil, None))
-        assert(Right(Success()) == DomainPart.parse(GENERIC("профи", false) :: DASH :: GENERIC("инвест", false) :: DOT :: GENERIC("рф", false) :: Nil, None))
-        assert(Right(Success()) == DomainPart.parse(GENERIC("example") :: DASH :: GENERIC("domain") :: DOT :: GENERIC("com") :: Nil, None))
+        assert(Right(Success()) == DomainPart.parse(GENERIC("профи", false) :: HYPHEN :: GENERIC("инвест", false) :: DOT :: GENERIC("рф", false) :: Nil, None))
+        assert(Right(Success()) == DomainPart.parse(GENERIC("example") :: HYPHEN :: GENERIC("domain") :: DOT :: GENERIC("com") :: Nil, None))
         assert(Right(Success()) == DomainPart.parse(GENERIC("example") :: OPENPARENTHESIS :: GENERIC("comment") :: CLOSEPARENTHESIS :: DOT :: GENERIC("com") :: Nil, None))
         assert(Right(Success()) == DomainPart.parse(OPENBRACKET :: IPV6TAG :: COLON :: GENERIC("2001") :: COLON :: GENERIC("db8a") :: COLON :: GENERIC("fdde") 
             :: COLON :: GENERIC("2001") :: COLON :: GENERIC("cba1") :: COLON :: GENERIC("dad4") :: CLOSEBRACKET :: Nil, None))
@@ -24,7 +22,6 @@ class DomainPartSpec extends AnyFunSuite {
     }
 
     test("parse an invalid domain part") {
-  //        "example@[[]",
   //        "example@exa\rmple.co.uk",
   //        "example@[\r]",
   //        "exam\rple@example.co.uk")
@@ -88,22 +85,24 @@ class DomainPartSpec extends AnyFunSuite {
             ['test@email$a.com'],
             ['test@email£a.com'],
   */
-        val invalidLocalParts = List[(List[Token], String)](
+        val invalidDomainParts = List[(List[Token], String)](
             (GENERIC("example") :: DOT :: DOT :: GENERIC("com") :: Nil, s"${DOT} near ${DOT}"),
             (AT :: GENERIC("example") :: Nil, s"Double AT"),
-            (GENERIC("example") :: DASH :: Nil, s"${DASH} at the end"),
-            (GENERIC("example") :: DASH :: DOT :: GENERIC("com") :: Nil, s"${DASH} near ${DOT}"),
+            (GENERIC("example") :: HYPHEN :: Nil, s"${HYPHEN} at the end"),
+            (GENERIC("example") :: HYPHEN :: DOT :: GENERIC("com") :: Nil, s"${HYPHEN} near ${DOT}"),
             (DOT :: GENERIC("example") :: DOT :: GENERIC("com") :: Nil, s"${DOT} near ${AT}"),
             (GENERIC("example") :: DOT :: Nil, s"${DOT} at the end"),
             (DQUOTE :: DQUOTE :: DQUOTE :: GENERIC("example") :: DOT :: GENERIC("com") :: DQUOTE :: DQUOTE :: Nil, s"Invalid character ${DQUOTE}"),
             (GENERIC("unclosed") :: CLOSEPARENTHESIS :: GENERIC("comment") :: DOT :: GENERIC ("com")  :: Nil, s"Unclosed comment"),
             (GENERIC("unclosed") :: OPENPARENTHESIS :: GENERIC("comment") :: CLOSEPARENTHESIS :: CLOSEPARENTHESIS :: DOT :: GENERIC ("com")  :: Nil, s"Unclosed comment"),
             (GENERIC("unclosed") :: OPENPARENTHESIS :: OPENPARENTHESIS:: GENERIC("comment") :: CLOSEPARENTHESIS :: DOT :: GENERIC ("com")  :: Nil, s"Unclosed comment"),
-            (OPENBRACKET :: OPENBRACKET :: CLOSEBRACKET :: Nil, "Expecting DTEXT")
+            (OPENBRACKET :: OPENBRACKET :: CLOSEBRACKET :: Nil, "Expecting DTEXT"),
+            (GENERIC("exam") :: CR :: GENERIC("le") :: DOT :: GENERIC("com") :: Nil, s"Invalid character in domain ${CR}")
+
         )
 
         for {
-            local <- invalidLocalParts
+            local <- invalidDomainParts
         } yield assert(Left(Failure(local._2)) == DomainPart.parse(local._1, None), local)
     }
 }

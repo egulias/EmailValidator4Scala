@@ -1,10 +1,35 @@
 package emailvalidator.lexer
 
 import org.scalatest.funsuite.AnyFunSuite
+import scala.collection.immutable.HashMap
 
 class TokenizerSpec extends AnyFunSuite {
   test("should produce special tokens from a special string") {
-    val expected = Token.special
+    val expected = HashMap[String, Token](
+      ("@",AT),
+      ("(",OPENPARENTHESIS),
+      (")",CLOSEPARENTHESIS),
+      ("<",LOWERTHAN),
+      (">",GREATERTHAN),
+      ("[",OPENBRACKET),
+      ("]",CLOSEBRACKET),
+      (":",COLON),
+      (";",SEMICOLON),
+      ("\\",BACKSLASH),
+      ("/",SLASH),
+      (",",COMMA),
+      (".",DOT),
+      ("\"",DQUOTE),
+      ("'",QUOTE),
+      ("-",HYPHEN),
+      (" ",SPACE),
+      ("\t",HTAB),
+      ("\r",CR),
+      ("\n",LF),
+      ("\r\n",CRLF),
+      ("IPv6",IPV6TAG),
+      ("\u0000",NUL)
+    )
     for (t <- expected) assert(List(t._2) == Tokenizer.tokenize(t._1))
   }
 
