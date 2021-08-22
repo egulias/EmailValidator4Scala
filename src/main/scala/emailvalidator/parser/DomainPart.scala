@@ -55,7 +55,7 @@ object DomainPart {
                     case CLOSEBRACKET => count(rest, counter - 1)
                     case OPENBRACKET => count(rest, counter + 1)
                     case GENERIC(_,_) | IPV6TAG | COLON | DOT => count(rest, counter)
-                    case _ => Left(Failure(s"Invalid character in domain ${token}"))
+                    case _ => Left(Failure(s"Invalid character in domain literal ${token}"))
                 }
                 //Review this error message
                 case Nil => if (counter == 0) Right(Success(None)) else Left(Failure("Expecting DTEXT"))
