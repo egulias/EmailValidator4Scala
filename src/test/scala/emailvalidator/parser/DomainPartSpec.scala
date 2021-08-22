@@ -22,10 +22,7 @@ class DomainPartSpec extends AnyFunSuite {
     }
 
     test("parse an invalid domain part") {
-  //        "example@[\r]",
-  //        "exam\rple@example.co.uk")
   /*
-              ['test@example.com test'],
             ['example@example@example.co.uk'],
             ['test_exampel@example.fr]'],
             ['example@local\host'],
@@ -97,7 +94,8 @@ class DomainPartSpec extends AnyFunSuite {
             (GENERIC("unclosed") :: OPENPARENTHESIS :: OPENPARENTHESIS:: GENERIC("comment") :: CLOSEPARENTHESIS :: DOT :: GENERIC ("com")  :: Nil, s"Unclosed comment"),
             (OPENBRACKET :: OPENBRACKET :: CLOSEBRACKET :: Nil, "Expecting DTEXT"),
             (GENERIC("exam") :: CR :: GENERIC("le") :: DOT :: GENERIC("com") :: Nil, s"Invalid character in domain ${CR}"),
-            (OPENBRACKET :: CR :: CLOSEBRACKET  :: Nil, s"Invalid character in domain ${CR}")
+            (OPENBRACKET :: CR :: CLOSEBRACKET  :: Nil, s"Invalid character in domain ${CR}"),
+            (GENERIC("example") :: DOT :: GENERIC("com") :: SPACE :: GENERIC("more"):: Nil, s"Invalid character in domain ${SPACE}"),
 
         )
 
