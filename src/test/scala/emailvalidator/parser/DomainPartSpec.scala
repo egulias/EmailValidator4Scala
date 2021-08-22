@@ -23,15 +23,8 @@ class DomainPartSpec extends AnyFunSuite {
 
     test("parse an invalid domain part") {
   /*
-            ['example@example@example.co.uk'],
-            ['test_exampel@example.fr]'],
-            ['example@local\host'],
-            ['example@localhost\\'],
-            ['example@localhost.'],
             ['username@ example . com'],
             ['username@ example.com'],
-            ['example@(fake].com'],
-            ['example@(fake.com'],
             ['username@example,com'],
             ['test@' . chr(226) . '.org'],
             ['test@iana.org \r\n'],
@@ -96,6 +89,14 @@ class DomainPartSpec extends AnyFunSuite {
             (GENERIC("exam") :: CR :: GENERIC("le") :: DOT :: GENERIC("com") :: Nil, s"Invalid character in domain ${CR}"),
             (OPENBRACKET :: CR :: CLOSEBRACKET  :: Nil, s"Invalid character in domain ${CR}"),
             (GENERIC("example") :: DOT :: GENERIC("com") :: SPACE :: GENERIC("more"):: Nil, s"Invalid character in domain ${SPACE}"),
+            (OPENBRACKET :: GENERIC("example") :: CLOSEPARENTHESIS :: DOT :: GENERIC("com") :: Nil, s"Invalid character in domain ${CLOSEPARENTHESIS}"),
+            (OPENPARENTHESIS :: GENERIC("example") :: CLOSEBRACKET :: DOT :: GENERIC("com") :: Nil, "Unclosed comment"),
+            (GENERIC("example") :: CLOSEBRACKET :: DOT :: GENERIC("com") :: Nil, "Expecting DTEXT"),
+            (GENERIC("example") :: AT :: GENERIC("example") :: DOT :: GENERIC("com") :: Nil, "Double AT"),
+            (GENERIC("example") :: BACKSLASH :: GENERIC("example") :: DOT :: GENERIC("com") :: Nil, s"Invalid character in domain ${BACKSLASH}"),
+            (GENERIC("example") :: BACKSLASH :: BACKSLASH :: Nil, s"Invalid character in domain ${BACKSLASH}"),
+            (GENERIC("example") :: DOT :: Nil, s"${DOT} at the end"),
+            (GENERIC("example") :: SPACE :: GENERIC("more"):: DOT :: GENERIC("com") :: Nil, s"Invalid character in domain ${SPACE}"),
 
         )
 

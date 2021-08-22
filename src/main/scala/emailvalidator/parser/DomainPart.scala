@@ -57,7 +57,7 @@ object DomainPart {
                     case GENERIC(_,_) | IPV6TAG | COLON | DOT => count(rest, counter)
                     case _ => Left(Failure(s"Invalid character in domain ${token}"))
                 }
-                
+                //Review this error message
                 case Nil => if (counter == 0) Right(Success(None)) else Left(Failure("Expecting DTEXT"))
             }
         }
