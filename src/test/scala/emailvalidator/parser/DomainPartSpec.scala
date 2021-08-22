@@ -22,7 +22,6 @@ class DomainPartSpec extends AnyFunSuite {
     }
 
     test("parse an invalid domain part") {
-  //        "example@exa\rmple.co.uk",
   //        "example@[\r]",
   //        "exam\rple@example.co.uk")
   /*
@@ -97,12 +96,13 @@ class DomainPartSpec extends AnyFunSuite {
             (GENERIC("unclosed") :: OPENPARENTHESIS :: GENERIC("comment") :: CLOSEPARENTHESIS :: CLOSEPARENTHESIS :: DOT :: GENERIC ("com")  :: Nil, s"Unclosed comment"),
             (GENERIC("unclosed") :: OPENPARENTHESIS :: OPENPARENTHESIS:: GENERIC("comment") :: CLOSEPARENTHESIS :: DOT :: GENERIC ("com")  :: Nil, s"Unclosed comment"),
             (OPENBRACKET :: OPENBRACKET :: CLOSEBRACKET :: Nil, "Expecting DTEXT"),
-            (GENERIC("exam") :: CR :: GENERIC("le") :: DOT :: GENERIC("com") :: Nil, s"Invalid character in domain ${CR}")
+            (GENERIC("exam") :: CR :: GENERIC("le") :: DOT :: GENERIC("com") :: Nil, s"Invalid character in domain ${CR}"),
+            (OPENBRACKET :: CR :: CLOSEBRACKET  :: Nil, s"Invalid character in domain ${CR}")
 
         )
 
         for {
             local <- invalidDomainParts
-        } yield assert(Left(Failure(local._2)) == DomainPart.parse(local._1, None), local)
+        } yield assert(Left(Failure(local._2)) == DomainPart.parse(local._1, None), s"expected ${local}")
     }
 }

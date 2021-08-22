@@ -41,7 +41,6 @@ object DomainPart {
                     case OPENPARENTHESIS => count(rest, counter + 1)
                     case _ => count(rest, counter)
                 }
-                
                 case Nil => if (counter == 0) Right(Success(None)) else Left(Failure("Unclosed comment"))
             }
         }
@@ -55,7 +54,8 @@ object DomainPart {
                 case token :: rest => token match {
                     case CLOSEBRACKET => count(rest, counter - 1)
                     case OPENBRACKET => count(rest, counter + 1)
-                    case _ => count(rest, counter)
+                    case GENERIC(_,_) | IPV6TAG | COLON | DOT => count(rest, counter)
+                    case _ => Left(Failure(s"Invalid character in domain ${token}"))
                 }
                 
                 case Nil => if (counter == 0) Right(Success(None)) else Left(Failure("Expecting DTEXT"))
