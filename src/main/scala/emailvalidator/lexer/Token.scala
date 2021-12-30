@@ -9,7 +9,7 @@ sealed trait Token {
 }
 
 object Token {
-  private val special:Map[String, Token] = HashMap[String, Token](
+  private val haveMeaning:Map[String, Token] = HashMap[String, Token](
     ("@",AT),
     ("(",OPENPARENTHESIS),
     (")",CLOSEPARENTHESIS),
@@ -32,15 +32,49 @@ object Token {
     ("\n",LF),
     ("\r\n",CRLF),
     ("IPv6",IPV6TAG),
-    ("\u0000",NUL)
+    ("\u0000",NUL),
   )
 
-  def apply(value: String): Token = special.contains(value) match {
-    case true => special.get(value).get
-    case _ => {
-        if("""(?ui)[\p{S}\p{C}\p{Cc}]+""".r.findAllIn(value).isEmpty) GENERIC (value, """^[\x20-\x7F]+$""".r.findAllIn(value).nonEmpty)
-        else INVALID
+  private val special:Map[String, Token] = HashMap[String, Token](
+    ("*", SPECIAL("*")),
+    ("^", SPECIAL("^")),
+    ("`", SPECIAL("`")),
+    ("~", SPECIAL("~")),
+    ("!", SPECIAL("!")),
+    ("&", SPECIAL("&")),
+    ("^", SPECIAL("^")),
+    ("%", SPECIAL("%")),
+    ("$", SPECIAL("$")),
+    ("`", SPECIAL("`")),
+    ("|", SPECIAL("|")),
+    ("~", SPECIAL("~")),
+    ("{", SPECIAL("{")),
+    ("}", SPECIAL("}")),
+    ("=", SPECIAL("=")),
+    ("+", SPECIAL("+")),
+    ("_", SPECIAL("_")),
+    ("¡", SPECIAL("¡")),
+    ("?", SPECIAL("?")),
+    ("#", SPECIAL("#")),
+    ("¨", SPECIAL("¨")),
+
+  )   
+  def apply(value: String): Token = {
+    val withMeaning: PartialFunction[String, Token] = {
+      case x if(haveMeaning.contains(x)) => haveMeaning.get(x).get
     }
+
+    val isSpecial: PartialFunction[String, Token] = {
+      case x if(special.contains(x)) => special.get(x).get
+    }
+
+    val isGeneric: PartialFunction[String, Token] = {
+      case x if("""(?ui)[\p{S}\p{C}\p{Cc}]+""".r.findAllIn(x).isEmpty) => GENERIC (x, """^[\x20-\x7F]+$""".r.findAllIn(x).nonEmpty)
+    }
+
+    val isInvalid: PartialFunction[String, Token] ={ case x => INVALID}
+
+    (withMeaning orElse isSpecial orElse isGeneric orElse isInvalid)(value)
   }
 }
 
@@ -51,6 +85,8 @@ sealed case class GENERIC(value:String, override val isAscii: Boolean = true) ex
 
 sealed case class IPv4(value:String) extends Token
 sealed case class IPv6(value:String) extends Token
+
+sealed case class SPECIAL(value:String) extends Token
 
 //missing code and name
 case object AT extends Token {def value: String = "@"}

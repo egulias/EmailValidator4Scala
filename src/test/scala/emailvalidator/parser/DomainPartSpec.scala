@@ -23,51 +23,13 @@ class DomainPartSpec extends AnyFunSuite {
 
     test("parse an invalid domain part") {
   /*
-            ['invalidipv4@[127.\0.0.0]'],
             ['test@' . chr(226) . '.org'],
-            ['test@iana.org \r\n'],
-            ['test@iana.org \r\n '],
-            ['test@iana.org \r\n \r\n'],
-            ['test@iana.org \r\n\r\n'],
-            ['test@iana.org  \r\n\r\n '],
-            ['test@foo;bar.com'],
-            ["test@examp'le.com"],
-            ['email.email@email."'],
-            ['test@email>'],
-            ['test@email<'],
-            ['test@email{'],
-            ['username@examp,le.com'],
-            ['test@ '],
-            ['test@example.com []'],
-            ['test@example.com. []'],
-            ['test@test. example.com'],
             ['example@toolonglocalparttoolonglocalparttoolonglocalparttoolonglocalparttoolonglocalparttoolonglocal'.
             'parttoolonglocalparttoolonglocalparttoolonglocalparttoolonglocalparttoolonglocalparttoolonglocalpart'.
             'toolonglocalparttoolonglocalparttoolonglocalparttoolonglocalpar'],
             ['example@toolonglocalparttoolonglocalparttoolonglocalparttoolonglocalpart.co.uk'],
             ['example@toolonglocalparttoolonglocalparttoolonglocalparttoolonglocalpart.test.co.uk'],
             ['example@test.toolonglocalparttoolonglocalparttoolonglocalparttoolonglocalpart.co.uk'],
-            ['test@email*a.com'],
-            ['test@email!a.com'],
-            ['test@email&a.com'],
-            ['test@email^a.com'],
-            ['test@email%a.com'],
-            ['test@email$a.com'],
-            ['test@email`a.com'],
-            ['test@email|a.com'],
-            ['test@email~a.com'],
-            ['test@email{a.com'],
-            ['test@email}a.com'],
-            ['test@email=a.com'],
-            ['test@email+a.com'],
-            ['test@email_a.com'],
-            ['test@email¡a.com'],
-            ['test@email?a.com'],
-            ['test@email#a.com'],
-            ['test@email¨a.com'],
-            ['test@email€a.com'],
-            ['test@email$a.com'],
-            ['test@email£a.com'],
   */
         val invalidDomainParts = List[(List[Token], String)](
             (GENERIC("example") :: DOT :: DOT :: GENERIC("com") :: Nil, s"${DOT} near ${DOT}"),
@@ -95,6 +57,10 @@ class DomainPartSpec extends AnyFunSuite {
             (GENERIC("example") :: COMMA :: GENERIC("com") :: Nil, s"Invalid character in domain ${COMMA}"),
             (GENERIC("example") :: SLASH :: GENERIC("example") :: DOT :: GENERIC("com") :: Nil, s"Invalid character in domain ${SLASH}"),
             (OPENBRACKET :: GENERIC("127") :: DOT :: BACKSLASH :: GENERIC("0") :: DOT :: GENERIC("0") :: DOT :: GENERIC("0") :: CLOSEBRACKET :: Nil, s"Invalid character in domain literal ${BACKSLASH}"),
+            (GENERIC("iana") :: DOT :: GENERIC("org") :: SPACE :: Nil, s"Invalid character in domain ${SPACE}"),
+            (GENERIC("foo") :: SEMICOLON :: GENERIC("bar") :: DOT :: GENERIC("com") :: Nil, s"Invalid character in domain ${SEMICOLON}"),
+            (GENERIC("foo") :: SPECIAL("+") :: GENERIC("bar") :: DOT :: GENERIC("com") :: Nil, s"Invalid character in domain ${SPECIAL("+")}"),
+            (GENERIC("foo") :: LOWERTHAN :: GENERIC("bar") :: DOT :: GENERIC("com") :: Nil, s"Invalid character in domain ${LOWERTHAN}"),
 
         )
 

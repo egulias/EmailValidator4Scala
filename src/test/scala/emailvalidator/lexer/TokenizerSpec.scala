@@ -28,7 +28,27 @@ class TokenizerSpec extends AnyFunSuite {
       ("\n",LF),
       ("\r\n",CRLF),
       ("IPv6",IPV6TAG),
-      ("\u0000",NUL)
+      ("\u0000",NUL),
+      ("*", SPECIAL("*")),
+      ("^", SPECIAL("^")),
+      ("~", SPECIAL("~")),
+      ("!", SPECIAL("!")),
+      ("&", SPECIAL("&")),
+      ("^", SPECIAL("^")),
+      ("%", SPECIAL("%")),
+      ("$", SPECIAL("$")),
+      ("`", SPECIAL("`")),
+      ("|", SPECIAL("|")),
+      ("~", SPECIAL("~")),
+      ("{", SPECIAL("{")),
+      ("}", SPECIAL("}")),
+      ("=", SPECIAL("=")),
+      ("+", SPECIAL("+")),
+      ("_", SPECIAL("_")),
+      ("¡", SPECIAL("¡")),
+      ("?", SPECIAL("?")),
+      ("#", SPECIAL("#")),
+      ("¨", SPECIAL("¨")),
     )
     for (t <- expected) assert(List(t._2) == Tokenizer.tokenize(t._1))
   }
@@ -64,9 +84,8 @@ class TokenizerSpec extends AnyFunSuite {
   }
 
   test ("it has invalid tokens") {
-    val value = "€" 
-    // ['examp║le@symfony.com'],
-    assert(true == Tokenizer.tokenize(value).contains(INVALID))
+    assert(true == Tokenizer.tokenize("€").contains(INVALID))
+    assert(true == Tokenizer.tokenize( "║").contains(INVALID))
   }
 
 }
