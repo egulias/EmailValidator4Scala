@@ -22,11 +22,6 @@ class DomainPartSpec extends AnyFunSuite {
     }
 
     test("parse an invalid domain part") {
-  /*
-            ['example@toolonglocalparttoolonglocalparttoolonglocalparttoolonglocalpart.co.uk'],
-            ['example@toolonglocalparttoolonglocalparttoolonglocalparttoolonglocalpart.test.co.uk'],
-            ['example@test.toolonglocalparttoolonglocalparttoolonglocalparttoolonglocalpart.co.uk'],
-  */
         val invalidDomainParts = List[(List[Token], String)](
             (GENERIC("example") :: DOT :: DOT :: GENERIC("com") :: Nil, s"${DOT} near ${DOT}"),
             (AT :: GENERIC("example") :: Nil, s"Double AT"),
