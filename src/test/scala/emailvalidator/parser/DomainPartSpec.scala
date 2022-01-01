@@ -23,10 +23,6 @@ class DomainPartSpec extends AnyFunSuite {
 
     test("parse an invalid domain part") {
   /*
-            ['test@' . chr(226) . '.org'],
-            ['example@toolonglocalparttoolonglocalparttoolonglocalparttoolonglocalparttoolonglocalparttoolonglocal'.
-            'parttoolonglocalparttoolonglocalparttoolonglocalparttoolonglocalparttoolonglocalparttoolonglocalpart'.
-            'toolonglocalparttoolonglocalparttoolonglocalparttoolonglocalpar'],
             ['example@toolonglocalparttoolonglocalparttoolonglocalparttoolonglocalpart.co.uk'],
             ['example@toolonglocalparttoolonglocalparttoolonglocalparttoolonglocalpart.test.co.uk'],
             ['example@test.toolonglocalparttoolonglocalparttoolonglocalparttoolonglocalpart.co.uk'],
@@ -61,6 +57,11 @@ class DomainPartSpec extends AnyFunSuite {
             (GENERIC("foo") :: SEMICOLON :: GENERIC("bar") :: DOT :: GENERIC("com") :: Nil, s"Invalid character in domain ${SEMICOLON}"),
             (GENERIC("foo") :: SPECIAL("+") :: GENERIC("bar") :: DOT :: GENERIC("com") :: Nil, s"Invalid character in domain ${SPECIAL("+")}"),
             (GENERIC("foo") :: LOWERTHAN :: GENERIC("bar") :: DOT :: GENERIC("com") :: Nil, s"Invalid character in domain ${LOWERTHAN}"),
+            (GENERIC("toolonglocalparttoolonglocalparttoolonglocalparttoolonglocalparttoolonglocalpart" +
+              "toolonglocalparttoolonglocalparttoolonglocalparttoolonglocalparttoolonglocalparttoolonglocalparttoolonglocalpart") :: DOT :: GENERIC("com") :: Nil,
+              s"Domain part too long. More than 63 chars."),
+            (GENERIC("toolonglocalparttoolonglocalparttoolonglocalparttoolonglocalpart") :: DOT :: GENERIC("com") :: Nil,
+              s"Domain part too long. More than 63 chars."),
 
         )
 

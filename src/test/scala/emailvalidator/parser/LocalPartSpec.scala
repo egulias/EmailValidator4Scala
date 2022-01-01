@@ -7,10 +7,12 @@ import emailvalidator.lexer._
 
 class LocalPartSpec extends AnyFunSuite {
    test("parse a valid local part")  {
+       // MISSING FOLDING WHITE SPACE AND PARENTHESIS
 //            ['example@faked(fake).co.uk'],
 //            ['инфо@письмо.рф'],
 //            ['müller@möller.de'],
 //            ["1500111@профи-инвест.рф"],
+// local part too long test missing
 /**
   *         return array(
             ['â@iana.org'],
