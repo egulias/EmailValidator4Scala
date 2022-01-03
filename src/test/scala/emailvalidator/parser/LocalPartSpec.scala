@@ -8,23 +8,11 @@ import emailvalidator.lexer._
 class LocalPartSpec extends AnyFunSuite {
    test("parse a valid local part")  {
        // MISSING FOLDING WHITE SPACE AND PARENTHESIS
-//            ['example@faked(fake).co.uk'],
-//            ['инфо@письмо.рф'],
-//            ['müller@möller.de'],
-//            ["1500111@профи-инвест.рф"],
 // local part too long test missing
 /**
   *         return array(
-            ['â@iana.org'],
-            ['fabien@symfony.com'],
-            ['example@example.co.uk'],
-            ['fabien_potencier@example.fr'],
-            ['fab\'ien@symfony.com'],
-            ['fab\ ien@symfony.com'],
             ['example((example))@fakedfake.co.uk'],
-            ['fabien+a@symfony.com'],
             ['exampl=e@example.com'],
-            ['инфо@письмо.рф'],
             ['"username"@example.com'],
             ['"user,name"@example.com'],
             ['"user name"@example.com'],
@@ -34,21 +22,70 @@ class LocalPartSpec extends AnyFunSuite {
             ['"test\ test"@iana.org'],
             ['""@iana.org'],
             ['"\""@iana.org'],
-            ['müller@möller.de'],
-            ["1500111@профи-инвест.рф"],
             [sprintf('example@%s.com', str_repeat('ъ', 40))],
+                    ['"""@iana.org'],
+
   */
-        assert(Right(Success()) == LocalPart.parse(GENERIC("localpart") :: AT :: Nil, None))
+        val validLocalParts = List[List[Token]](
+            GENERIC("localpart") :: AT :: Nil,
+            GENERIC("инфо") :: AT :: Nil,
+            GENERIC("müller") :: AT :: Nil,
+            GENERIC("â") :: AT :: Nil,
+            GENERIC("1500111") :: AT :: Nil,
+            GENERIC("local") :: SPECIAL("_") :: GENERIC("part"):: AT :: Nil, 
+            GENERIC("local") ::  SPECIAL("+") :: GENERIC("part") :: AT :: Nil,
+            GENERIC("local") :: BACKSLASH :: QUOTE :: GENERIC("part") :: AT :: Nil,
+            
+        )
+        for {
+            local <- validLocalParts
+        } yield assert(Right(Success()) == LocalPart.parse(local, None), local)
     }
 
+    test("parse valid FWS") {
+        val validLocalParts = List[List[Token]](
+            GENERIC("test") :: BACKSLASH :: SPACE :: Nil,
+            GENERIC("local") :: BACKSLASH :: SPACE :: GENERIC("part") :: AT :: Nil,
+        )
+        for {
+            local <- validLocalParts
+        } yield assert(Right(Success()) == LocalPart.parse(local, None), local)
+    }
+
+    test("parse valid quoted string")(pending)
+    test("parse INvalid quoted string")(pending)
+    test("parse valid comment ()")(pending)
+    test("parse invalid comment ()")(pending)
+
     test("parse an invalid local part") {
+        //invalid CFWS
+        /*
+                    [new InvalidEmail(new AtextAfterCFWS(), "\n"), "exampl\ne@example.co.uk"],
+            [new InvalidEmail(new AtextAfterCFWS(), "\t"), "exampl\te@example.co.uk"],
+            [new InvalidEmail(new CRNoLF(), "\r"), "exam\rple@example.co.uk"],
+            (CRLF :: AT :: Nil, "Empty FWS"),
+            (LF :: AT :: Nil, "Empty FWS"),
+            CRLF :: SPACE :: CRLF :: GENERIC("test") :: AT :: Nil,
+            CRLF :: SPACE :: CRLF :: SPACE :: GENERIC("test") :: AT :: Nil,
+            CRLF :: SPACE :: GENERIC("test") :: AT :: Nil,
+            ['"test"test@iana.org'],
+            ['"test""test"@iana.org'],
+            ['"test"."test"@iana.org'],
+            ['"test".test@iana.org'],
+            ['"test"' . chr(0) . '@iana.org'],
+            ['"test\"@iana.org'],
+            [chr(226) . '@iana.org'],
+            ['\r\ntest@iana.org'],
+            ['\r\n \r\ntest@iana.org'],
+            ['\r\n \r\n test@iana.org'],
+            ['test;123@foobar.com'],
+            ['examp║le@symfony.com'],
+            ['0'],
+            [0],
+        */
         val invalidLocalParts = List[(List[Token], String)](
             (GENERIC("test") :: INVALID :: GENERIC("test") :: AT :: Nil, s"Found [${INVALID}] ATEXT expected"),
             (GENERIC("test") :: SEMICOLON :: GENERIC("123") :: AT :: Nil, s"Found [${SEMICOLON}] ATEXT expected"),
-            (CR :: LF :: SPACE :: CR :: LF :: SPACE :: GENERIC("test") :: AT :: Nil, "Empty FWS"),
-            (CR :: LF :: SPACE :: GENERIC("test") :: AT :: Nil, "Empty FWS"),
-            (CR :: LF :: AT :: Nil, "Empty FWS"),
-            (LF :: AT :: Nil, "Empty FWS"),
             (DQUOTE :: GENERIC("local") :: BACKSLASH :: DQUOTE :: AT :: Nil, "Missing closing DQUOTE. Quotes string should be a unit"),
             (DQUOTE :: GENERIC("local") :: DQUOTE :: GENERIC("\u0000") :: AT :: Nil, s"ATEXT found, ${AT} expected"),
             (DQUOTE :: GENERIC("local") :: DQUOTE :: DOT :: DQUOTE :: GENERIC("local") :: DQUOTE:: AT :: Nil,
