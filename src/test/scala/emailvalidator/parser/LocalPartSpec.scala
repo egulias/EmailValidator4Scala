@@ -110,7 +110,7 @@ class LocalPartSpec extends AnyFunSuite {
             (GENERIC("local") :: DOT :: DOT :: GENERIC("part") :: AT :: Nil, s"Found [${DOT}] ATEXT expected"),
             (GENERIC("localpart") :: DOT :: AT :: Nil, s"Found [${DOT}] near [${AT}]"),
             (OPENPARENTHESIS :: GENERIC("localpart") :: AT :: Nil, s"Unclosed parethesis, found [(]"),
-            (OPENPARENTHESIS :: GENERIC("localpart") :: CLOSEPARENTHESIS :: GENERIC("more") :: AT :: Nil, s"Unclosed parethesis, found [(]"),
+            (OPENPARENTHESIS :: GENERIC("AAAlocalpart") :: CLOSEPARENTHESIS :: GENERIC("more") :: AT :: Nil, s"ATEXT not expected after comment"),
             (DOT :: GENERIC("localpart") :: AT :: Nil, s"Found [${DOT}] at start"),
             (GENERIC("local") :: BACKSLASH :: GENERIC("part") :: AT :: Nil, s"ATEXT found after FWS"),
         )

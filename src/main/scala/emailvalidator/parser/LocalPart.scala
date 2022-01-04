@@ -78,8 +78,13 @@ object LocalPart {
     private def parseComments(current: Token, rest: List[Token], previous: Option[Token], counter: Int = 0): Either[Failure, Success] = {
         rest match {
             case token :: remaining => token match {
-                case OPENPARENTHESIS => parseComments(token, remaining,Option(current), counter + 1)
-                case CLOSEPARENTHESIS => parseComments(token, remaining,Option(current), counter - 1)
+                case OPENPARENTHESIS => parseComments(token, remaining, Option(current), counter + 1)
+                case CLOSEPARENTHESIS => {
+                    val updatedCounter = counter - 1
+                    if(updatedCounter == 0 && remaining.head == AT) Right(Success())
+                    else if(updatedCounter == 0 && remaining.head != AT) Left(Failure("ATEXT not expected after comment"))
+                    else parseComments(token, remaining, Option(current), updatedCounter)
+                }
                 case _ => parseComments(token, remaining,Option(current), counter)
             }
             case Nil if (counter == 0) => Right(Success())
