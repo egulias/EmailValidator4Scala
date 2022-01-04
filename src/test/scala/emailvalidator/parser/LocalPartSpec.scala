@@ -11,19 +11,6 @@ class LocalPartSpec extends AnyFunSuite {
 // local part too long test missing
 /**
   *         return array(
-            ['example((example))@fakedfake.co.uk'],
-            ['exampl=e@example.com'],
-            ['"username"@example.com'],
-            ['"user,name"@example.com'],
-            ['"user name"@example.com'],
-            ['"user@name"@example.com'],
-            ['"user\"name"@example.com'],
-            ['"\a"@iana.org'],
-            ['"test\ test"@iana.org'],
-            ['""@iana.org'],
-            ['"\""@iana.org'],
-            [sprintf('example@%s.com', str_repeat('ъ', 40))],
-                    ['"""@iana.org'],
 
   */
         val validLocalParts = List[List[Token]](
@@ -35,6 +22,7 @@ class LocalPartSpec extends AnyFunSuite {
             GENERIC("local") :: SPECIAL("_") :: GENERIC("part"):: AT :: Nil, 
             GENERIC("local") ::  SPECIAL("+") :: GENERIC("part") :: AT :: Nil,
             GENERIC("local") :: BACKSLASH :: QUOTE :: GENERIC("part") :: AT :: Nil,
+            GENERIC("local") :: SPECIAL("=") :: GENERIC("part") :: AT :: Nil,
             
         )
         for {
@@ -52,10 +40,35 @@ class LocalPartSpec extends AnyFunSuite {
         } yield assert(Right(Success()) == LocalPart.parse(local, None), local)
     }
 
-    test("parse valid quoted string")(pending)
+    test("parse valid quoted string") {
+        val validDoulbeQuotedLocalParts = List[List[Token]](
+            DQUOTE :: GENERIC("localpart") :: DQUOTE :: AT :: Nil,
+            DQUOTE :: GENERIC("local") :: COMMA :: GENERIC("part") :: DQUOTE :: AT :: Nil,
+            DQUOTE :: GENERIC("local") :: SPACE :: GENERIC("part") :: DQUOTE :: AT :: Nil,
+            DQUOTE :: GENERIC("local") :: BACKSLASH :: SPACE :: GENERIC("part") :: DQUOTE :: AT :: Nil,
+            DQUOTE :: GENERIC("local") :: AT :: GENERIC("part") :: DQUOTE :: AT :: Nil,
+            DQUOTE :: GENERIC("local") :: BACKSLASH :: DQUOTE :: GENERIC("part") :: DQUOTE :: AT :: Nil,
+            DQUOTE :: BACKSLASH :: GENERIC("localpart") :: DQUOTE :: AT :: Nil,
+            DQUOTE :: DQUOTE :: AT :: Nil,
+            DQUOTE :: BACKSLASH :: DQUOTE :: DQUOTE :: AT :: Nil,
+        )
+        for {
+            local <- validDoulbeQuotedLocalParts 
+        } yield assert(Right(Success()) == LocalPart.parse(local, None), local)
+    }
     test("parse INvalid quoted string")(pending)
-    test("parse valid comment ()")(pending)
-    test("parse invalid comment ()")(pending)
+
+    test("parse valid comment ()") {
+
+            //['example((example))@fakedfake.co.uk'],
+        val validLocalPartsWithComments = List[List[Token]](
+            GENERIC("local") :: OPENPARENTHESIS :: GENERIC("comment") :: CLOSEPARENTHESIS :: AT :: Nil,
+            GENERIC("local") :: OPENPARENTHESIS :: OPENPARENTHESIS :: GENERIC("comment") :: CLOSEPARENTHESIS :: CLOSEPARENTHESIS :: AT :: Nil,
+        )
+        for {
+            local <- validLocalPartsWithComments 
+        } yield assert(Right(Success()) == LocalPart.parse(local, None), local)
+    }
 
     test("parse an invalid local part") {
         //invalid CFWS
@@ -68,12 +81,6 @@ class LocalPartSpec extends AnyFunSuite {
             CRLF :: SPACE :: CRLF :: GENERIC("test") :: AT :: Nil,
             CRLF :: SPACE :: CRLF :: SPACE :: GENERIC("test") :: AT :: Nil,
             CRLF :: SPACE :: GENERIC("test") :: AT :: Nil,
-            ['"test"test@iana.org'],
-            ['"test""test"@iana.org'],
-            ['"test"."test"@iana.org'],
-            ['"test".test@iana.org'],
-            ['"test"' . chr(0) . '@iana.org'],
-            ['"test\"@iana.org'],
             [chr(226) . '@iana.org'],
             ['\r\ntest@iana.org'],
             ['\r\n \r\ntest@iana.org'],
@@ -103,6 +110,7 @@ class LocalPartSpec extends AnyFunSuite {
             (GENERIC("local") :: DOT :: DOT :: GENERIC("part") :: AT :: Nil, s"Found [${DOT}] ATEXT expected"),
             (GENERIC("localpart") :: DOT :: AT :: Nil, s"Found [${DOT}] near [${AT}]"),
             (OPENPARENTHESIS :: GENERIC("localpart") :: AT :: Nil, s"Unclosed parethesis, found [(]"),
+            (OPENPARENTHESIS :: GENERIC("localpart") :: CLOSEPARENTHESIS :: GENERIC("more") :: AT :: Nil, s"Unclosed parethesis, found [(]"),
             (DOT :: GENERIC("localpart") :: AT :: Nil, s"Found [${DOT}] at start"),
             (GENERIC("local") :: BACKSLASH :: GENERIC("part") :: AT :: Nil, s"ATEXT found after FWS"),
         )

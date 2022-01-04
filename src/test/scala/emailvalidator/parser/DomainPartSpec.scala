@@ -19,6 +19,9 @@ class DomainPartSpec extends AnyFunSuite {
             :: COLON :: GENERIC("2001") :: COLON :: GENERIC("cba1") :: COLON :: GENERIC("dad4") :: CLOSEBRACKET :: Nil, None))
         assert(Right(Success()) == DomainPart.parse(OPENBRACKET :: GENERIC("127") :: DOT :: GENERIC("0") :: DOT :: GENERIC("0") :: DOT :: GENERIC("0") :: CLOSEBRACKET :: Nil, None))
         assert(Right(Success()) == DomainPart.parse(GENERIC("127") :: DOT :: GENERIC("0") :: DOT :: GENERIC("0") :: DOT :: GENERIC("0") :: Nil, None))
+        assert(Right(Success()) == DomainPart.parse(GENERIC("ъ".toString() * 40) :: DOT :: GENERIC("com") :: Nil, None))
+
+            //[sprintf('example@%s.com', str_repeat('ъ', 40))],
     }
 
     test("parse an invalid domain part") {

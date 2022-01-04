@@ -20,7 +20,7 @@ object LocalPart {
                     case DOT if !previous.isDefined => Left(Failure(s"Found [${DOT}] at start"))
                     case DOT if previous.getOrElse(NUL).isInstanceOf[DOT.type] => Left(Failure(s"Found [${DOT}] ATEXT expected"))
                     case DOT if rest.head.isInstanceOf[AT.type] => Left(Failure(s"Found [$DOT] near [$AT]"))
-                    case OPENPARENTHESIS => parseComments(token, rest, Option(token))
+                    case OPENPARENTHESIS => parseComments(token, rest, Option(token), 1)
                     case DQUOTE => parseQuotedString(token, rest, Option(token))
                     case BACKSLASH => rest.head match {
                         case GENERIC(_,_) => Left(Failure(s"ATEXT found after FWS"))
@@ -75,8 +75,17 @@ object LocalPart {
 
     }
 
-    private def parseComments(current: Token, rest: List[Token], previous: Option[Token]): Either[Failure, Success] = {
-        Left(Failure("Unclosed parethesis, found [(]"))
+    private def parseComments(current: Token, rest: List[Token], previous: Option[Token], counter: Int = 0): Either[Failure, Success] = {
+        rest match {
+            case token :: remaining => token match {
+                case OPENPARENTHESIS => parseComments(token, remaining,Option(current), counter + 1)
+                case CLOSEPARENTHESIS => parseComments(token, remaining,Option(current), counter - 1)
+                case _ => parseComments(token, remaining,Option(current), counter)
+            }
+            case Nil if (counter == 0) => Right(Success())
+            case Nil => Left(Failure("Unclosed parethesis, found [(]"))
+
+        }
     }
   
     private def parseQuotedString(current: Token, rest: List[Token], previous: Option[Token]): Either[Failure, Success] = {
